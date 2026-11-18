@@ -71,20 +71,34 @@ await prisma.$transaction(async (tx) => {
 Rechazar: `estado 'Rechazada'`, `motivo_rechazo` opcional, `fecha_respuesta: ahora()` (CHECK lo exige).
 
 ## Estado y plan (marcar al terminar)
+**El frontend está COMPLETO** (todas las pantallas de los 3 roles, probadas con datos simulados).
+Falta el backend: implementar los endpoints de **`API.md`** respetando los tipos de
+`frontend/src/types.ts`. No cambies el frontend salvo para corregir un error real; si un dato
+no encaja, ajusta el backend al contrato.
+
 - [x] M1 Autenticación: login/logout/me, sesión en tabla `sesion`, bloqueo tras 5 intentos, roles
-- [x] Frontend: login, layout con menú por rol, rutas protegidas
-- [ ] M3 Horarios (tutor): CRUD de franjas propias; no borrar/editar franjas Ocupadas
-- [ ] M2 Solicitudes: estudiante crea (asignatura → tutores que la imparten → franjas Disponibles);
-      Mis solicitudes; tutor ve pendientes, aprueba (modal con lugar) o rechaza
-- [ ] M4 Tutorías: Mis tutorías del tutor, cancelar (motivo), reprogramar (proponer franja);
-      estudiante acepta/rechaza la reprogramación
-- [ ] M5 Seguimiento: tutor registra asistencia/nivel/observaciones; historial del estudiante
-- [ ] M8 Usuarios (coordinador): listar con filtros, registrar estudiante/tutor (bcryptjs factor 10),
-      editar, activar/desactivar
-- [ ] M7 Reportes: tipo + rango de fechas + filtros → PDF (pdfkit) o XLSX (exceljs); guardar en `reporte`
-- [ ] M6 Notificaciones: crear fila en cada evento; campana con contador de no leídas; marcar leída
-- [ ] Inicio de cada rol con datos reales (tarjetas/métricas)
-- [ ] Pruebas Jest/Supertest mínimas (las 5 del documento) — opcional si no hay tiempo
+- [x] Frontend completo (`frontend/src/pages/`), cliente de API en `frontend/src/services.ts`
+- [ ] Catálogos y tutores (`/asignaturas`, `/catalogos`, `/tutores...`)
+- [ ] M3 Horarios
+- [ ] M2 Solicitudes (crear, mías, pendientes, aprobar, rechazar)
+- [ ] M4/M5 Tutorías (listar, detalle, cancelar, reprogramar, seguimiento, responder reprogramación)
+- [ ] M6 Notificaciones (+ crearlas en cada evento 🔔 de API.md)
+- [ ] M8 Usuarios
+- [ ] M7 Reportes (métricas, vista previa, PDF/XLSX, historial)
+- [ ] Probar los 5 casos (CP-01 a CP-05) en el navegador de punta a punta
+- [ ] Pruebas Jest/Supertest mínimas — opcional si no hay tiempo
+
+Orden recomendado: catálogos → horarios → solicitudes → tutorías → notificaciones → usuarios → reportes.
+Después de cada módulo: `npm run build` en backend y probar la pantalla correspondiente.
+
+## Frontend (referencia)
+- Componentes base en `src/components/ui.tsx` (Boton, Badge, Tarjeta, Modal, Campo, Alerta, Vacio…),
+  avisos con `useToast()`, carga de datos con `useCarga()` de `src/lib/hooks.ts`.
+- Pantallas: `src/pages/estudiante/`, `src/pages/tutor/`, `src/pages/coordinador/`,
+  `src/pages/DetalleTutoriaPage.tsx` (compartida), panel de notificaciones en `components/`.
+- El diseño de *Detalles de Sesión* del Figma mostraba "modalidad virtual / enlace"; se reemplazó
+  por **Lugar** porque el sistema es solo presencial (CP-03) y la BD no tiene esos campos.
+- El plan Starter de Figma limita las llamadas del MCP por día: ya no hace falta consultarlo para el backend.
 
 ## Diseño (Figma)
 Archivo `QnIABtYNHVoNFVokbCm55Q` ("SIGTAU-ADS"). Usar el MCP de Figma (`get_screenshot` /

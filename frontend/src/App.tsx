@@ -2,48 +2,62 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { RutaProtegida } from './auth/RutaProtegida';
 import { Layout } from './components/Layout';
+import { ToastProvider } from './components/Toast';
 import { LoginPage } from './pages/LoginPage';
-import { EnConstruccion } from './pages/EnConstruccion';
+import { DetalleTutoriaPage } from './pages/DetalleTutoriaPage';
+import { InicioEstudiantePage } from './pages/estudiante/InicioEstudiantePage';
+import { NuevaSolicitudPage } from './pages/estudiante/NuevaSolicitudPage';
+import { DetalleTutorPage } from './pages/estudiante/DetalleTutorPage';
+import { MisSolicitudesPage } from './pages/estudiante/MisSolicitudesPage';
+import { HistorialPage } from './pages/estudiante/HistorialPage';
+import { SolicitudesPendientesPage } from './pages/tutor/SolicitudesPendientesPage';
+import { MisTutoriasPage } from './pages/tutor/MisTutoriasPage';
+import { GestionarHorariosPage } from './pages/tutor/GestionarHorariosPage';
+import { InicioCoordinadorPage } from './pages/coordinador/InicioCoordinadorPage';
+import { UsuariosPage } from './pages/coordinador/UsuariosPage';
+import { GenerarReportePage } from './pages/coordinador/GenerarReportePage';
 
-/**
- * Rutas por rol. Los nodos de Figma de cada pantalla están en CLAUDE.md.
- * Al terminar una pantalla, reemplaza su <EnConstruccion /> por el componente real.
- */
+/** Rutas por rol. Los nodos de Figma de cada pantalla están en CLAUDE.md. */
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
+    <ToastProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
 
-          <Route element={<RutaProtegida roles={['Estudiante']} />}>
-            <Route path="/estudiante" element={<Layout />}>
-              <Route index element={<EnConstruccion titulo="Vista de Inicio" figma="1:5" />} />
-              <Route path="nueva-solicitud" element={<EnConstruccion titulo="Nueva Solicitud" figma="1:179" />} />
-              <Route path="solicitudes" element={<EnConstruccion titulo="Mis Solicitudes" figma="8:2" />} />
-              <Route path="historial" element={<EnConstruccion titulo="Historial de Tutorías" figma="3:333" />} />
+            <Route element={<RutaProtegida roles={['Estudiante']} />}>
+              <Route path="/estudiante" element={<Layout />}>
+                <Route index element={<InicioEstudiantePage />} />
+                <Route path="nueva-solicitud" element={<NuevaSolicitudPage />} />
+                <Route path="nueva-solicitud/tutor/:id" element={<DetalleTutorPage />} />
+                <Route path="solicitudes" element={<MisSolicitudesPage />} />
+                <Route path="tutorias/:id" element={<DetalleTutoriaPage />} />
+                <Route path="historial" element={<HistorialPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          <Route element={<RutaProtegida roles={['Tutor']} />}>
-            <Route path="/tutor" element={<Layout />}>
-              <Route index element={<EnConstruccion titulo="Mis Solicitudes Pendientes" figma="25:58" />} />
-              <Route path="horarios" element={<EnConstruccion titulo="Gestionar Horarios" figma="82:804" />} />
-              <Route path="tutorias" element={<EnConstruccion titulo="Mis Tutorías" figma="26:330" />} />
+            <Route element={<RutaProtegida roles={['Tutor']} />}>
+              <Route path="/tutor" element={<Layout />}>
+                <Route index element={<SolicitudesPendientesPage />} />
+                <Route path="horarios" element={<GestionarHorariosPage />} />
+                <Route path="tutorias" element={<MisTutoriasPage />} />
+                <Route path="tutorias/:id" element={<DetalleTutoriaPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          <Route element={<RutaProtegida roles={['Coordinador']} />}>
-            <Route path="/coordinador" element={<Layout />}>
-              <Route index element={<EnConstruccion titulo="Inicio / Métricas" figma="99:695" />} />
-              <Route path="usuarios" element={<EnConstruccion titulo="Usuarios del Sistema" figma="91:5" />} />
-              <Route path="reportes" element={<EnConstruccion titulo="Generar Reporte" figma="96:366" />} />
+            <Route element={<RutaProtegida roles={['Coordinador']} />}>
+              <Route path="/coordinador" element={<Layout />}>
+                <Route index element={<InicioCoordinadorPage />} />
+                <Route path="usuarios" element={<UsuariosPage />} />
+                <Route path="reportes" element={<GenerarReportePage />} />
+              </Route>
             </Route>
-          </Route>
 
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ToastProvider>
   );
 }

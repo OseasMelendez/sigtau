@@ -55,6 +55,7 @@ database/   script SQL (tablas, disparadores, datos de prueba)
 backend/    API REST NestJS: un módulo por módulo del sistema (M1–M8)
 frontend/   React: una página por pantalla del Figma
 CLAUDE.md   contexto técnico, reglas y plan de trabajo
+API.md      contrato de endpoints que el frontend espera del backend
 ```
 
 ## Problemas comunes

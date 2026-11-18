@@ -36,7 +36,32 @@ async function request<T>(metodo: Metodo, ruta: string, body?: unknown): Promise
   return datos as T;
 }
 
+/** Descarga un archivo (PDF/XLSX) generado por el backend con un POST. */
+async function descargar(ruta: string, body: unknown, nombrePorDefecto: string) {
+  const res = await fetch(`/api${ruta}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).catch(() => {
+    throw new ApiError(0, 'No se pudo conectar con el servidor.');
+  });
+  if (!res.ok) {
+    const datos = await res.json().catch(() => null);
+    throw new ApiError(res.status, datos?.message ?? 'No se pudo generar el archivo.');
+  }
+  const disp = res.headers.get('Content-Disposition') ?? '';
+  const nombre = /filename="?([^"]+)"?/.exec(disp)?.[1] ?? nombrePorDefecto;
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = decodeURIComponent(nombre);
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export const api = {
+  descargar,
   get: <T>(ruta: string) => request<T>('GET', ruta),
   post: <T>(ruta: string, body?: unknown) => request<T>('POST', ruta, body ?? {}),
   put: <T>(ruta: string, body?: unknown) => request<T>('PUT', ruta, body ?? {}),

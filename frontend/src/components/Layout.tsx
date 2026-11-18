@@ -1,9 +1,10 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  Bell, BookOpen, CalendarDays, ChartColumn, FileText, GraduationCap, History, House, LogOut, Plus, Users,
+  BookOpen, CalendarDays, ChartColumn, FileText, GraduationCap, History, House, LogOut, Plus, Users,
   type LucideIcon,
 } from 'lucide-react';
 import { useAuth, type Rol } from '../auth/AuthContext';
+import { NotificacionesPanel } from './NotificacionesPanel';
 
 interface ItemMenu { a: string; texto: string; icono: LucideIcon; exacto?: boolean }
 
@@ -107,10 +108,7 @@ export function Layout() {
 
       <div className="ml-56 flex min-h-screen flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-3 border-b border-borde bg-superficie px-6">
-          {/* TODO M6: panel de notificaciones con contador de no leídas */}
-          <button className="relative flex size-9 items-center justify-center rounded-full bg-fondo text-texto-suave hover:text-primario" title="Notificaciones">
-            <Bell size={18} />
-          </button>
+          <NotificacionesPanel />
           <Iniciales nombre={usuario.nombre_completo} className="size-9 text-sm" />
         </header>
         <main className="flex-1 p-8">
