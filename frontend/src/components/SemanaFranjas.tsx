@@ -8,7 +8,7 @@ import type { Franja } from '../types';
  * (estudiante elige una franja), Gestionar Horarios y Reprogramar (tutor).
  */
 export function SemanaFranjas({
-  lunes, onCambiarSemana, franjas, seleccionada, onElegir, renderAcciones, deshabilitar,
+  lunes, onCambiarSemana, franjas, seleccionada, onElegir, renderAcciones, deshabilitar, estilo,
 }: {
   lunes: string;
   onCambiarSemana: (lunes: string) => void;
@@ -19,6 +19,8 @@ export function SemanaFranjas({
   renderAcciones?: (f: Franja) => ReactNode;
   /** Devuelve true si la franja no se puede elegir */
   deshabilitar?: (f: Franja) => boolean;
+  /** Clases de color propias para una franja (reemplaza las de Disponible/Ocupado) */
+  estilo?: (f: Franja) => string | undefined;
 }) {
   const hoy = hoyISO();
   const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i));
@@ -52,10 +54,12 @@ export function SemanaFranjas({
                 const ocupada = f.estado === 'Ocupado';
                 const bloqueada = deshabilitar ? deshabilitar(f) : ocupada || pasada;
                 const sel = seleccionada === f.id_horario;
+                const propio = estilo?.(f);
                 return (
                   <div key={f.id_horario}
                     className={`group rounded-lg px-2 py-2 text-center text-xs font-semibold transition-colors ${
                       sel ? 'bg-primario-oscuro text-white ring-2 ring-primario ring-offset-2'
+                        : propio ? propio
                         : ocupada ? 'bg-slate-200 text-slate-500'
                         : pasada ? 'bg-primario/30 text-white'
                         : 'bg-primario text-white'
@@ -64,7 +68,7 @@ export function SemanaFranjas({
                     role={onElegir && !bloqueada ? 'button' : undefined}
                     title={ocupada ? 'Ocupado' : pasada ? 'Fecha pasada' : 'Disponible'}>
                     <span className="flex items-center justify-center gap-1">
-                      {ocupada && <Lock size={11} />}{f.hora_inicio} – {f.hora_fin}
+                      {ocupada && !propio && <Lock size={11} />}{f.hora_inicio} – {f.hora_fin}
                     </span>
                     {renderAcciones?.(f)}
                   </div>

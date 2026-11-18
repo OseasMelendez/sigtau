@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { BookOpen, CalendarCheck, CalendarDays, Check, Clock, HelpCircle, Info, MapPin, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BookOpen, CalendarCheck, CalendarDays, CalendarRange, Check, Clock, HelpCircle, Info, MapPin, X } from 'lucide-react';
 import { solicitudes } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { duracion, haceCuanto, textoFranja } from '../../lib/fechas';
@@ -26,15 +27,18 @@ export function SolicitudesPendientesPage() {
   return (
     <div className="max-w-6xl">
       <Encabezado titulo="Mis Solicitudes Pendientes" subtitulo="Revisa y gestiona las solicitudes de tutoría de los estudiantes.">
-        <div className="flex flex-wrap gap-2">
+        <Link to="/tutor/programacion" className="flex items-center gap-1.5 text-sm font-semibold text-primario hover:underline">
+          <CalendarRange size={16} /> Ver en calendario
+        </Link>
+      </Encabezado>
+      <div className="-mt-2 mb-5 flex flex-wrap gap-2">
           <button className={chip(!filtro)} onClick={() => setFiltro(0)}>Todas ({datos.length})</button>
           {asignaturas.map((a) => (
             <button key={a.id_asignatura} className={chip(filtro === a.id_asignatura)} onClick={() => setFiltro(a.id_asignatura)}>
               {a.nombre} ({datos.filter((s) => s.asignatura.id_asignatura === a.id_asignatura).length})
             </button>
           ))}
-        </div>
-      </Encabezado>
+      </div>
 
       {lista.length === 0 ? <Vacio texto="No tienes solicitudes pendientes. ¡Todo al día!" /> : (
         <div className="grid gap-5 lg:grid-cols-2">
@@ -73,7 +77,7 @@ export function SolicitudesPendientesPage() {
 }
 
 /** Modal "Aprobar solicitud" (Figma 276:4). Horario en solo lectura; solo se indica el lugar (CP-03). */
-function ModalAprobar({ solicitud: s, onCerrar, onListo }: { solicitud: SolicitudTutor | null; onCerrar: () => void; onListo: () => void }) {
+export function ModalAprobar({ solicitud: s, onCerrar, onListo }: { solicitud: SolicitudTutor | null; onCerrar: () => void; onListo: () => void }) {
   const [lugar, setLugar] = useState('');
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);

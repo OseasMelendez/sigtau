@@ -135,4 +135,7 @@ export const reportes = {
   /** POST /reportes  FiltrosReporte + formato -> archivo (y registro en tabla reporte) */
   descargar: (f: FiltrosReporte, formato: 'PDF' | 'XLSX') =>
     api.descargar('/reportes', { ...f, formato }, `reporte.${formato.toLowerCase()}`),
+  /** GET /reportes/:id/archivo  -> vuelve a generar un reporte del historial (sin crear otro registro) */
+  descargarHistorial: (id: number, formato: 'PDF' | 'XLSX') =>
+    api.descargar(`/reportes/${id}/archivo`, undefined, `reporte.${formato.toLowerCase()}`),
 };

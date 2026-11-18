@@ -125,9 +125,10 @@ Opcional (RF-10, si da tiempo): `@nestjs/schedule` con un `@Cron` cada hora que 
 | Método | Ruta | Body | Respuesta |
 |---|---|---|---|
 | GET | `/reportes/metricas` | | `Metricas` |
-| GET | `/reportes` | | `ReporteGenerado[]` (historial, más recientes primero) |
+| GET | `/reportes` | | `ReporteGenerado[]` (historial de **todos** los coordinadores, más recientes primero, máx. 20) |
 | POST | `/reportes/vista-previa` | `FiltrosReporte` | `VistaPreviaReporte` |
 | POST | `/reportes` | `FiltrosReporte & { formato: 'PDF' \| 'XLSX' }` | **Archivo** + registro en `reporte` 🔔 al coordinador |
+| GET | `/reportes/:id/archivo` | | **Archivo** regenerado con los filtros y formato guardados en esa fila (no crea otro registro) |
 
 - `Metricas`: `sesiones_activas` = sesiones sin `fecha_cierre` y no expiradas; `tasa_asistencia` =
   % de seguimientos con `asistio = true` (entero, 0 si no hay); `demanda_por_asignatura` = número de
@@ -139,7 +140,10 @@ Opcional (RF-10, si da tiempo): `@nestjs/schedule` con un `@Cron` cada hora que 
   - **Progreso académico:** Fecha, Estudiante, Asignatura, Tutor, Nivel, Observaciones
   - **Demanda por asignatura:** Asignatura, Solicitudes, Aprobadas, Rechazadas, Pendientes, Tutorías realizadas
   - **Gestión de solicitudes:** Fecha solicitud, Estudiante, Asignatura, Tutor, Estado, Fecha respuesta, Motivo rechazo
-  `resumen`: 2 a 4 totales (p. ej. «Total», «Asistencia»).
+  `total_tutorias` = tutorías que cumplen los filtros; `tasa_asistencia` = % de esas tutorías con
+  seguimiento en las que `asistio = true` (entero 0–100, 0 si no hay). Se muestran en las dos tarjetas.
+- `ReporteGenerado`: además de las columnas de `reporte`, incluir `tutor` y `asignatura` (nombres,
+  o `null`) y `responsable` (nombre del coordinador). Fechas DATE como `'YYYY-MM-DD'`.
 - Archivo: reutiliza la misma función que la vista previa. PDF con `pdfkit` (título, rango, resumen,
   tabla), XLSX con `exceljs` (encabezado en negrita, columnas autoajustadas). Responder con
   `@Res()` usando `Content-Type` adecuado y

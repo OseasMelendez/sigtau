@@ -98,6 +98,7 @@ Después de cada módulo: `npm run build` en backend y probar la pantalla corres
   `src/pages/DetalleTutoriaPage.tsx` (compartida), panel de notificaciones en `components/`.
 - El diseño de *Detalles de Sesión* del Figma mostraba "modalidad virtual / enlace"; se reemplazó
   por **Lugar** porque el sistema es solo presencial (CP-03) y la BD no tiene esos campos.
+- Registrar estudiante: el campo "Coordinador" del Figma se omitió porque la tabla `estudiante` no lo tiene.
 - El plan Starter de Figma limita las llamadas del MCP por día: ya no hace falta consultarlo para el backend.
 
 ## Diseño (Figma)
@@ -122,7 +123,7 @@ Fotos de los diseños → usar `<Iniciales />` de `components/Layout.tsx`.
 | Tutor | Modal Reprogramar Tutoría | 87:2303 |
 | Tutor | Modal Cancelar Tutoría | 87:2668 |
 | Tutor | Administración de disponibilidad | 82:804 |
-| Tutor | Programación de Tutorías (+ modal) | 276:248 / 276:4 |
+| Tutor | Programación de Tutorías (`/tutor/programacion`) + modal Aprobar | 276:248 / 276:4 |
 | Tutor | Notificaciones | 88:3254 |
 | Coordinador | Inicio / Métricas | 99:695 |
 | Coordinador | Usuarios del Sistema | 91:5 |

@@ -36,13 +36,13 @@ async function request<T>(metodo: Metodo, ruta: string, body?: unknown): Promise
   return datos as T;
 }
 
-/** Descarga un archivo (PDF/XLSX) generado por el backend con un POST. */
+/** Descarga un archivo (PDF/XLSX) generado por el backend (POST si hay body, GET si no). */
 async function descargar(ruta: string, body: unknown, nombrePorDefecto: string) {
   const res = await fetch(`/api${ruta}`, {
-    method: 'POST',
+    method: body === undefined ? 'GET' : 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
   }).catch(() => {
     throw new ApiError(0, 'No se pudo conectar con el servidor.');
   });

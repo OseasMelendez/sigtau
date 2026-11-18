@@ -177,16 +177,23 @@ export interface FiltrosReporte {
 
 export interface VistaPreviaReporte {
   titulo: string;
+  total_tutorias: number;   // tutorías que cumplen los filtros
+  tasa_asistencia: number;  // 0 a 100, de esas tutorías con seguimiento
   columnas: string[];
   filas: (string | number)[][];
-  resumen: { etiqueta: string; valor: string | number }[];
 }
 
 export interface ReporteGenerado {
   id_reporte: number;
   tipo: TipoReporte;
-  fecha_desde: string;
+  fecha_desde: string;       // 'YYYY-MM-DD'
   fecha_hasta: string;
+  id_tutor: number | null;
+  tutor: string | null;      // nombre del tutor filtrado
+  id_asignatura: number | null;
+  asignatura: string | null; // nombre de la asignatura filtrada
+  estado_filtro: EstadoTutoria | null;
   formato: 'PDF' | 'XLSX';
   fecha_generacion: string;
+  responsable: string;       // nombre del coordinador que lo generó
 }

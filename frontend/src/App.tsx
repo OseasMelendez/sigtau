@@ -13,6 +13,7 @@ import { HistorialPage } from './pages/estudiante/HistorialPage';
 import { SolicitudesPendientesPage } from './pages/tutor/SolicitudesPendientesPage';
 import { MisTutoriasPage } from './pages/tutor/MisTutoriasPage';
 import { GestionarHorariosPage } from './pages/tutor/GestionarHorariosPage';
+import { ProgramacionTutoriasPage } from './pages/tutor/ProgramacionTutoriasPage';
 import { InicioCoordinadorPage } from './pages/coordinador/InicioCoordinadorPage';
 import { UsuariosPage } from './pages/coordinador/UsuariosPage';
 import { GenerarReportePage } from './pages/coordinador/GenerarReportePage';
@@ -40,6 +41,7 @@ export default function App() {
             <Route element={<RutaProtegida roles={['Tutor']} />}>
               <Route path="/tutor" element={<Layout />}>
                 <Route index element={<SolicitudesPendientesPage />} />
+                <Route path="programacion" element={<ProgramacionTutoriasPage />} />
                 <Route path="horarios" element={<GestionarHorariosPage />} />
                 <Route path="tutorias" element={<MisTutoriasPage />} />
                 <Route path="tutorias/:id" element={<DetalleTutoriaPage />} />
