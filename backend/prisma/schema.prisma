@@ -1,0 +1,210 @@
+// Esquema Prisma de SIGTAU, equivalente a SIGTAU_BD.sql (esquema "sigtau").
+// La base de datos es la fuente de verdad: las tablas, disparadores y restricciones
+// (EXCLUDE de franjas, índices únicos parciales) viven en PostgreSQL. Este archivo
+// solo describe las tablas para que Prisma genere el cliente tipado.
+// Para regenerarlo desde la base: npx prisma db pull   (y luego npx prisma generate)
+// NO usar "prisma migrate" ni "prisma db push": borrarían los disparadores.
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model facultad {
+  id_facultad Int       @id @default(autoincrement())
+  nombre      String    @unique @db.VarChar(100)
+  carrera     carrera[]
+  tutor       tutor[]
+}
+
+model carrera {
+  id_carrera  Int          @id @default(autoincrement())
+  id_facultad Int
+  codigo      String       @unique @db.VarChar(10)
+  nombre      String       @db.VarChar(100)
+  facultad    facultad     @relation(fields: [id_facultad], references: [id_facultad])
+  estudiante  estudiante[]
+}
+
+model asignatura {
+  id_asignatura     Int                 @id @default(autoincrement())
+  codigo            String              @unique @db.VarChar(10)
+  nombre            String              @db.VarChar(100)
+  activa            Boolean             @default(true)
+  reporte           reporte[]
+  solicitud_tutoria solicitud_tutoria[]
+  tutor_asignatura  tutor_asignatura[]
+}
+
+model usuario {
+  id_usuario              Int            @id @default(autoincrement())
+  nombre_usuario          String         @unique @db.VarChar(30)
+  nombre_completo         String         @db.VarChar(100)
+  identificacion          String         @unique @db.VarChar(20)
+  correo                  String         @unique @db.VarChar(100)
+  contrasena_hash         String         @db.Char(60)
+  rol                     String         @db.VarChar(12)
+  activo                  Boolean        @default(true)
+  debe_cambiar_contrasena Boolean        @default(true)
+  intentos_fallidos       Int            @default(0) @db.SmallInt
+  bloqueado_hasta         DateTime?      @db.Timestamp(6)
+  ultimo_acceso           DateTime?      @db.Timestamp(6)
+  fecha_registro          DateTime       @default(now()) @db.Timestamp(6)
+  estudiante              estudiante?
+  notificacion            notificacion[]
+  reporte                 reporte[]
+  sesion                  sesion[]
+  tutor                   tutor?
+}
+
+model sesion {
+  id_sesion        Int       @id @default(autoincrement())
+  id_usuario       Int
+  token_hash       String    @unique @db.Char(64)
+  fecha_inicio     DateTime  @default(now()) @db.Timestamp(6)
+  fecha_expiracion DateTime  @db.Timestamp(6)
+  fecha_cierre     DateTime? @db.Timestamp(6)
+  usuario          usuario   @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+model estudiante {
+  id_usuario        Int                 @id
+  id_carrera        Int
+  ciclo             Int?                @db.SmallInt
+  carrera           carrera             @relation(fields: [id_carrera], references: [id_carrera])
+  usuario           usuario             @relation(fields: [id_usuario], references: [id_usuario])
+  solicitud_tutoria solicitud_tutoria[]
+}
+
+model tutor {
+  id_usuario        Int                @id
+  id_facultad       Int
+  especialidad      String             @db.VarChar(100)
+  telefono_contacto String?            @db.VarChar(15)
+  biografia         String?            @db.VarChar(500)
+  horario_tutor     horario_tutor[]
+  reporte           reporte[]
+  facultad          facultad           @relation(fields: [id_facultad], references: [id_facultad])
+  usuario           usuario            @relation(fields: [id_usuario], references: [id_usuario])
+  tutor_asignatura  tutor_asignatura[]
+}
+
+model tutor_asignatura {
+  id_tutor      Int
+  id_asignatura Int
+  asignatura    asignatura @relation(fields: [id_asignatura], references: [id_asignatura])
+  tutor         tutor      @relation(fields: [id_tutor], references: [id_usuario])
+
+  @@id([id_tutor, id_asignatura])
+}
+
+// Restricciones en la BD: hora_fin > hora_inicio y EXCLUDE (sin solapamiento por tutor)
+model horario_tutor {
+  id_horario  Int      @id @default(autoincrement())
+  id_tutor    Int
+  fecha       DateTime @db.Date
+  hora_inicio DateTime @db.Time(6)
+  hora_fin    DateTime @db.Time(6)
+  estado      String   @default("Disponible") @db.VarChar(10)
+  tutor       tutor    @relation(fields: [id_tutor], references: [id_usuario])
+
+  reprogramacion_anterior  reprogramacion[]    @relation("reprog_anterior")
+  reprogramacion_propuesta reprogramacion[]    @relation("reprog_propuesto")
+  solicitud_tutoria        solicitud_tutoria[]
+  tutoria                  tutoria[]
+}
+
+model solicitud_tutoria {
+  id_solicitud           Int           @id @default(autoincrement())
+  id_estudiante          Int
+  id_asignatura          Int
+  id_horario             Int
+  descripcion_dificultad String        @db.VarChar(500)
+  documento_apoyo        String?       @db.VarChar(255)
+  estado                 String        @default("Pendiente") @db.VarChar(10)
+  motivo_rechazo         String?       @db.VarChar(255)
+  fecha_solicitud        DateTime      @default(now()) @db.Timestamp(6)
+  fecha_respuesta        DateTime?     @db.Timestamp(6)
+  asignatura             asignatura    @relation(fields: [id_asignatura], references: [id_asignatura])
+  estudiante             estudiante    @relation(fields: [id_estudiante], references: [id_usuario])
+  horario_tutor          horario_tutor @relation(fields: [id_horario], references: [id_horario])
+  tutoria                tutoria?
+
+  @@index([id_estudiante], map: "idx_solicitud_estudiante")
+  @@index([id_horario], map: "idx_solicitud_horario")
+}
+
+model tutoria {
+  id_tutoria         Int               @id @default(autoincrement())
+  id_solicitud       Int               @unique
+  id_horario         Int
+  lugar              String?           @db.VarChar(100)
+  estado             String            @default("Programada") @db.VarChar(10)
+  fecha_programacion DateTime          @default(now()) @db.Timestamp(6)
+  motivo_cancelacion String?           @db.VarChar(255)
+  fecha_cancelacion  DateTime?         @db.Timestamp(6)
+  reprogramacion     reprogramacion[]
+  seguimiento        seguimiento?
+  horario_tutor      horario_tutor     @relation(fields: [id_horario], references: [id_horario])
+  solicitud_tutoria  solicitud_tutoria @relation(fields: [id_solicitud], references: [id_solicitud])
+
+  @@index([estado], map: "idx_tutoria_estado")
+}
+
+model reprogramacion {
+  id_reprogramacion    Int           @id @default(autoincrement())
+  id_tutoria           Int
+  id_horario_anterior  Int
+  id_horario_propuesto Int
+  motivo               String        @db.VarChar(255)
+  estado               String        @default("Pendiente") @db.VarChar(10)
+  fecha_propuesta      DateTime      @default(now()) @db.Timestamp(6)
+  fecha_respuesta      DateTime?     @db.Timestamp(6)
+  horario_anterior     horario_tutor @relation("reprog_anterior", fields: [id_horario_anterior], references: [id_horario])
+  horario_propuesto    horario_tutor @relation("reprog_propuesto", fields: [id_horario_propuesto], references: [id_horario])
+  tutoria              tutoria       @relation(fields: [id_tutoria], references: [id_tutoria])
+}
+
+model seguimiento {
+  id_seguimiento Int      @id @default(autoincrement())
+  id_tutoria     Int      @unique
+  asistio        Boolean
+  nivel_progreso String?  @db.VarChar(8)
+  observaciones  String
+  fecha_registro DateTime @default(now()) @db.Timestamp(6)
+  tutoria        tutoria  @relation(fields: [id_tutoria], references: [id_tutoria])
+}
+
+model notificacion {
+  id_notificacion Int      @id @default(autoincrement())
+  id_usuario      Int
+  tipo            String   @db.VarChar(15)
+  titulo          String   @db.VarChar(100)
+  mensaje         String   @db.VarChar(255)
+  leida           Boolean  @default(false)
+  fecha_envio     DateTime @default(now()) @db.Timestamp(6)
+  usuario         usuario  @relation(fields: [id_usuario], references: [id_usuario])
+
+  @@index([id_usuario, leida], map: "idx_notificacion_usuario")
+}
+
+model reporte {
+  id_reporte       Int         @id @default(autoincrement())
+  id_coordinador   Int
+  tipo             String      @db.VarChar(25)
+  fecha_desde      DateTime    @db.Date
+  fecha_hasta      DateTime    @db.Date
+  id_tutor         Int?
+  id_asignatura    Int?
+  estado_filtro    String?     @db.VarChar(10)
+  formato          String      @db.VarChar(4)
+  fecha_generacion DateTime    @default(now()) @db.Timestamp(6)
+  asignatura       asignatura? @relation(fields: [id_asignatura], references: [id_asignatura])
+  coordinador      usuario     @relation(fields: [id_coordinador], references: [id_usuario])
+  tutor            tutor?      @relation(fields: [id_tutor], references: [id_usuario])
+}
