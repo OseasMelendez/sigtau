@@ -70,26 +70,15 @@ await prisma.$transaction(async (tx) => {
 ```
 Rechazar: `estado 'Rechazada'`, `motivo_rechazo` opcional, `fecha_respuesta: ahora()` (CHECK lo exige).
 
-## Estado y plan (marcar al terminar)
-**El frontend está COMPLETO** (todas las pantallas de los 3 roles, probadas con datos simulados).
-Falta el backend: implementar los endpoints de **`API.md`** respetando los tipos de
-`frontend/src/types.ts`. No cambies el frontend salvo para corregir un error real; si un dato
-no encaja, ajusta el backend al contrato.
+## Estado
+**El sistema está COMPLETO** (backend y frontend), probado de punta a punta en el navegador con la
+BD real: los 3 roles, los 8 módulos y los casos CP-01 a CP-05.
 
-- [x] M1 Autenticación: login/logout/me, sesión en tabla `sesion`, bloqueo tras 5 intentos, roles
-- [x] Frontend completo (`frontend/src/pages/`), cliente de API en `frontend/src/services.ts`
-- [ ] Catálogos y tutores (`/asignaturas`, `/catalogos`, `/tutores...`)
-- [ ] M3 Horarios
-- [ ] M2 Solicitudes (crear, mías, pendientes, aprobar, rechazar)
-- [ ] M4/M5 Tutorías (listar, detalle, cancelar, reprogramar, seguimiento, responder reprogramación)
-- [ ] M6 Notificaciones (+ crearlas en cada evento 🔔 de API.md)
-- [ ] M8 Usuarios
-- [ ] M7 Reportes (métricas, vista previa, PDF/XLSX, historial)
-- [ ] Probar los 5 casos (CP-01 a CP-05) en el navegador de punta a punta
-- [ ] Pruebas Jest/Supertest mínimas — opcional si no hay tiempo
-
-Orden recomendado: catálogos → horarios → solicitudes → tutorías → notificaciones → usuarios → reportes.
-Después de cada módulo: `npm run build` en backend y probar la pantalla correspondiente.
+- Backend: un archivo por módulo en `backend/src/<modulo>/<modulo>.module.ts` (DTO + servicio +
+  controlador). Mapeos comunes y `notificar()` en `src/common/mapeos.ts`. Contrato en `API.md`.
+- Pendiente opcional: recordatorios automáticos 24 h antes (`@nestjs/schedule`), cambio de
+  contraseña obligatorio en el primer inicio de sesión, documento de apoyo en la solicitud,
+  pruebas Jest/Supertest.
 
 ## Frontend (referencia)
 - Componentes base en `src/components/ui.tsx` (Boton, Badge, Tarjeta, Modal, Campo, Alerta, Vacio…),

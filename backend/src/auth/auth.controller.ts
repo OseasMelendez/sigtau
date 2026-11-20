@@ -13,7 +13,10 @@ export class AuthController {
   @Publica()
   @Post('login')
   @HttpCode(200)
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const r = await this.auth.login(dto.usuario, dto.contrasena);
     res.cookie(COOKIE_SESION, r.token, {
       httpOnly: true,

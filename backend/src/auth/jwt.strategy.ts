@@ -31,7 +31,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       desdeCookie(req) ?? ExtractJwt.fromAuthHeaderAsBearerToken()(req)!;
     const usuario = await this.auth.validarSesion(payload.sid, token);
     if (!usuario) {
-      throw new UnauthorizedException('Tu sesión expiró. Inicia sesión de nuevo.');
+      throw new UnauthorizedException(
+        'Tu sesión expiró. Inicia sesión de nuevo.',
+      );
     }
     return usuario;
   }

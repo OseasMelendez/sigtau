@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { createHash } from 'node:crypto';
@@ -54,7 +58,9 @@ export class AuthService {
         where: { id_usuario: usuario.id_usuario },
         data: {
           intentos_fallidos: bloquear ? 0 : intentos,
-          bloqueado_hasta: bloquear ? sumarMinutos(momento, MINUTOS_BLOQUEO) : null,
+          bloqueado_hasta: bloquear
+            ? sumarMinutos(momento, MINUTOS_BLOQUEO)
+            : null,
         },
       });
       if (bloquear) {
@@ -80,7 +86,9 @@ export class AuthService {
       const temporal = await tx.sesion.create({
         data: {
           id_usuario: usuario.id_usuario,
-          token_hash: hashToken(`${usuario.id_usuario}-${Date.now()}-${Math.random()}`),
+          token_hash: hashToken(
+            `${usuario.id_usuario}-${Date.now()}-${Math.random()}`,
+          ),
           fecha_inicio: momento,
           fecha_expiracion: expiracion,
         },
@@ -95,7 +103,11 @@ export class AuthService {
       });
       await tx.usuario.update({
         where: { id_usuario: usuario.id_usuario },
-        data: { intentos_fallidos: 0, bloqueado_hasta: null, ultimo_acceso: momento },
+        data: {
+          intentos_fallidos: 0,
+          bloqueado_hasta: null,
+          ultimo_acceso: momento,
+        },
       });
       return { token, sesion };
     });
@@ -163,7 +175,9 @@ export class AuthService {
       tutor: u.tutor
         ? {
             especialidad: u.tutor.especialidad,
-            asignaturas: u.tutor.tutor_asignatura.map((ta) => ta.asignatura.nombre),
+            asignaturas: u.tutor.tutor_asignatura.map(
+              (ta) => ta.asignatura.nombre,
+            ),
           }
         : null,
     };

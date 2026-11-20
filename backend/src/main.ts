@@ -16,7 +16,11 @@ async function bootstrap() {
 
   // class-validator: rechaza campos que no estén en el DTO y convierte tipos
   app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
   );
   app.useGlobalFilters(new DbErrorFilter());
 

@@ -43,9 +43,13 @@ export class RolesGuard implements CanActivate {
       ctx.getClass(),
     ]);
     if (!roles?.length) return true;
-    const user: UsuarioActual | undefined = ctx.switchToHttp().getRequest().user;
+    const user: UsuarioActual | undefined = ctx
+      .switchToHttp()
+      .getRequest().user;
     if (!user || !roles.includes(user.rol)) {
-      throw new ForbiddenException('No tienes permiso para realizar esta acción.');
+      throw new ForbiddenException(
+        'No tienes permiso para realizar esta acción.',
+      );
     }
     return true;
   }

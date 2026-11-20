@@ -91,7 +91,8 @@ function traducirErrorBD(
     if (e.code === 'P2003')
       return { status: 400, message: 'Un dato relacionado no existe.' };
     const causa = (e.meta as any)?.driverAdapterError?.cause;
-    if (causa) return traducirCausaPg(causa.originalCode, causa.originalMessage);
+    if (causa)
+      return traducirCausaPg(causa.originalCode, causa.originalMessage);
   }
 
   // Errores que vienen directo del adaptador de PostgreSQL
@@ -122,7 +123,10 @@ function traducirCausaPg(
       message: 'La franja se solapa con otra franja que ya registraste.',
     };
   if (codigo === '23514')
-    return { status: 400, message: 'Algún dato no cumple las reglas del sistema.' };
+    return {
+      status: 400,
+      message: 'Algún dato no cumple las reglas del sistema.',
+    };
   if (codigo === '23505')
     return { status: 409, message: 'Ya existe un registro con esos datos.' };
   if (codigo === '23503')
