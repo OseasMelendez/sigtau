@@ -39,6 +39,10 @@ npm run dev
 ```
 Abrir http://localhost:5173
 
+> **¿Ya tenías la base de datos de antes?** Si después de un `git pull` el backend falla con
+> `column ... does not exist` (p. ej. `titulo`, `area` o `foto`), vuelve a ejecutar
+> `database/SIGTAU_BD.sql`: el script trae las columnas nuevas.
+
 ## Usuarios de prueba
 Contraseña para todos: `Sigtau2026!`
 
@@ -49,12 +53,20 @@ Contraseña para todos: `Sigtau2026!`
 | Estudiante | `ga22001`, `pe22002`, `go22003`, `ru22004` |
 | Estudiante desactivado | `me22005` (para demostrar el bloqueo) |
 
+`ru22004` aún tiene la contraseña inicial: al entrar se abre **Mi perfil** pidiendo cambiarla.
+Cada usuario cambia su foto y su contraseña con clic en su avatar o nombre del menú lateral.
+
+## Archivos subidos
+Las fotos de perfil y los documentos de apoyo de las solicitudes se guardan en
+`backend/uploads/`. Esa carpeta **no está en git** y no se borra al reiniciar la base de datos
+(solo se pierde la referencia): en otra computadora los usuarios aparecen con sus iniciales
+hasta que se suban fotos de nuevo.
+
 ## Estructura
 ```
 database/   script SQL (tablas, disparadores, datos de prueba)
 backend/    API REST NestJS: un módulo por módulo del sistema (M1–M8)
 frontend/   React: una página por pantalla del Figma
-CLAUDE.md   contexto técnico, reglas y plan de trabajo
 API.md      contrato de endpoints que el frontend espera del backend
 ```
 
@@ -62,4 +74,5 @@ API.md      contrato de endpoints que el frontend espera del backend
 - **`password authentication failed`**: la contraseña de `DATABASE_URL` en `backend/.env` no es la de tu PostgreSQL.
 - **`relation "usuario" does not exist`**: no se ejecutó el script en la base `sigtau`, o la URL no termina en `?schema=sigtau`.
 - **El login responde «No se pudo conectar con el servidor»**: el backend no está corriendo.
-- **Para dejar la BD como al inicio**: volver a ejecutar `SIGTAU_BD.sql` (borra y recrea todo).
+- **`column ... does not exist`** (p. ej. `titulo`, `area`, `foto`): la base es de una versión anterior; volver a ejecutar `SIGTAU_BD.sql`.
+- **Para dejar la BD como al inicio**: volver a ejecutar `SIGTAU_BD.sql` (borra y recrea todo). No hace falta reiniciar el backend ni ejecutar comandos de Prisma; solo volver a iniciar sesión.
