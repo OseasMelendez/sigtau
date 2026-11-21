@@ -33,24 +33,27 @@ export function ModalCancelar({ tutoria: t, onCerrar, onListo }: { tutoria: Tuto
   };
 
   return (
-    <Modal abierto titulo="Cancelar Tutoría" icono={<XCircle size={22} className="text-peligro" />} onCerrar={cerrar} ancho="max-w-md">
-      <div className="rounded-xl border border-borde bg-fondo p-4 text-sm">
-        <p className="font-medium">{t.estudiante.nombre_completo}</p>
+    <Modal abierto titulo="Cancelar Tutoría" icono={<XCircle size={20} className="text-peligro" />} onCerrar={cerrar} ancho="max-w-sm"
+      claseCabecera="border-b-0 !pb-1 [&_h2]:text-lg [&_h2]:font-medium [&_h2]:text-peligro">
+      {/* Figma 87:2668 */}
+      <div className="rounded-lg bg-fondo-tutor p-3 text-xs">
+        <p className="text-sm font-medium">{t.estudiante.nombre_completo}</p>
         <p className="text-texto-suave">{t.asignatura.nombre}</p>
-        <p className="mt-1 flex items-center gap-1.5"><CalendarDays size={14} /> {textoFranja(t.franja)}</p>
+        <p className="mt-1.5 flex items-center gap-1.5 text-texto-suave"><CalendarDays size={13} /> {textoFranja(t.franja)}</p>
       </div>
-      <div className="mt-5">
+      <div className="mt-4 [&_label]:text-xs [&_label]:font-medium">
+        {/* CP-04: sin motivo el botón queda deshabilitado y se muestra este texto exacto */}
         <Campo etiqueta="Motivo de cancelación" htmlFor="motivo-cancelacion" derecha={`${motivo.length}/255`}
           ayuda={!motivo.trim() ? 'Indica el motivo para continuar' : undefined}>
-          <textarea id="motivo-cancelacion" rows={3} maxLength={255} className={`${claseInput} resize-none`} autoFocus
+          <textarea id="motivo-cancelacion" rows={3} maxLength={255} className={`${claseInput} resize-none bg-campo!`} autoFocus
             placeholder="Escribe el motivo aquí…" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
         </Campo>
       </div>
       {error && <div className="mt-3"><Alerta>{error}</Alerta></div>}
-      <Boton variante="peligro" className="mt-5 w-full" disabled={!motivo.trim()} cargando={enviando} onClick={confirmar}>
+      <Boton variante="peligro" className="mt-4 w-full !rounded-md !py-2 text-xs font-medium" disabled={!motivo.trim()} cargando={enviando} onClick={confirmar}>
         Confirmar cancelación
       </Boton>
-      <button onClick={cerrar} className="mt-3 w-full text-sm text-texto-suave hover:text-texto">Volver</button>
+      <button onClick={cerrar} className="mt-2 w-full py-1 text-xs text-texto-suave hover:text-texto">Volver</button>
     </Modal>
   );
 }
@@ -101,41 +104,60 @@ export function ModalReprogramar({ tutoria: t, onCerrar, onListo }: { tutoria: T
   };
 
   return (
-    <Modal abierto titulo="Reprogramar Tutoría" onCerrar={cerrar}
-      pie={<><Boton variante="secundario" onClick={cerrar}>Cancelar</Boton><Boton cargando={enviando} onClick={confirmar}>Confirmar reprogramación</Boton></>}>
-      <div className="rounded-xl border border-borde bg-fondo p-4 text-sm">
-        <p className="mb-2 text-[11px] font-semibold tracking-wide text-texto-suave uppercase">Detalles actuales</p>
+    <Modal abierto titulo="Reprogramar Tutoría" onCerrar={cerrar} ancho="max-w-md"
+      claseCabecera="bg-fondo-tutor !py-3.5 [&_h2]:text-lg [&_h2]:font-medium [&_h2]:text-primario-oscuro"
+      pie={<>
+        <Boton variante="secundario" className="!rounded-md !border-primario/60 !py-1.5 text-xs font-medium" onClick={cerrar}>Cancelar</Boton>
+        <Boton cargando={enviando} className="!rounded-md !py-1.5 text-xs font-medium" onClick={confirmar}>Confirmar reprogramación</Boton>
+      </>}>
+      {/* Figma 87:2303 */}
+      <div className="rounded-lg border border-borde bg-fondo-tutor p-3.5 text-xs">
+        <p className="mb-2.5 text-[10px] tracking-wide text-texto-suave uppercase">Detalles actuales</p>
         <div className="grid grid-cols-2 gap-3">
-          <p className="flex items-center gap-2"><User size={15} className="text-primario" /> {t.estudiante.nombre_completo}</p>
-          <p className="flex items-center gap-2"><BookOpen size={15} className="text-primario" /> {t.asignatura.nombre}</p>
+          <div className="flex items-start gap-2">
+            <User size={14} className="mt-0.5 text-primario" />
+            <div><p className="text-[10px] text-texto-suave">Estudiante</p><p className="font-medium">{t.estudiante.nombre_completo}</p></div>
+          </div>
+          <div className="flex items-start gap-2">
+            <BookOpen size={14} className="mt-0.5 text-primario" />
+            <div><p className="text-[10px] text-texto-suave">Asignatura</p><p className="font-medium">{t.asignatura.nombre}</p></div>
+          </div>
         </div>
-        <p className="mt-2 flex items-center gap-2 text-peligro"><CalendarX size={15} /> <span className="line-through">{textoFranja(t.franja)}</span></p>
+        <div className="mt-2.5 flex items-start gap-2 text-peligro">
+          <CalendarX size={14} className="mt-0.5" />
+          <div><p className="text-[10px]">Horario actual</p><p className="line-through">{textoFranja(t.franja)}</p></div>
+        </div>
       </div>
 
-      <p className="mt-5 mb-3 font-semibold text-primario-oscuro">Seleccionar nuevo horario</p>
-      <Campo etiqueta="Fecha" htmlFor="fecha-reprog">
-        <input id="fecha-reprog" type="date" min={hoyISO()} className={claseInput} value={fecha} onChange={(e) => setFecha(e.target.value)} />
-      </Campo>
+      <p className="mt-4 mb-2 text-xs font-medium text-primario-oscuro">Seleccionar Nuevo Horario</p>
+      <div className="[&_label]:text-xs [&_label]:font-medium">
+        <Campo etiqueta="Fecha" htmlFor="fecha-reprog">
+          <input id="fecha-reprog" type="date" min={hoyISO()} className={`${claseInput} !py-2 bg-campo!`} value={fecha} onChange={(e) => setFecha(e.target.value)} />
+        </Campo>
+      </div>
 
-      <p className="mt-4 mb-2 text-sm font-semibold">Horarios disponibles {fecha && `(${fechaConDia(fecha)})`}</p>
-      {franjas === null ? <p className="text-sm text-texto-suave">Cargando…</p> : franjas.length === 0 ? (
-        <p className="text-sm text-texto-suave">
+      {/* Figma 87:2303: fecha sin año entre paréntesis, p. ej. "(Viernes, 20 de noviembre)" */}
+      <p className="mt-4 mb-2 text-xs font-medium">
+        Horarios Disponibles {fecha && <span className="font-normal text-texto-suave">({fechaConDia(fecha).split(' de 20')[0]})</span>}
+      </p>
+      {franjas === null ? <p className="text-xs text-texto-suave">Cargando…</p> : franjas.length === 0 ? (
+        <p className="text-xs text-texto-suave">
           No tienes franjas disponibles ese día. <Link to="/tutor/horarios" className="font-semibold text-primario hover:underline">Agregar en Gestionar Horarios</Link>
         </p>
       ) : (
         <div className="flex flex-wrap gap-2">
           {franjas.map((f) => (
             <button key={f.id_horario} onClick={() => setElegida(f.id_horario)}
-              className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${elegida === f.id_horario ? 'bg-primario-oscuro text-white' : 'bg-slate-100 hover:bg-primario-suave'}`}>
+              className={`rounded-full px-3 py-1 text-xs font-medium ${elegida === f.id_horario ? 'bg-primario-oscuro text-white' : 'bg-campo hover:bg-primario-suave'}`}>
               {f.hora_inicio} – {f.hora_fin}
             </button>
           ))}
         </div>
       )}
 
-      <div className="mt-5">
-        <Campo etiqueta="Motivo de reprogramación" htmlFor="motivo-reprog" derecha={`${motivo.length}/255`}>
-          <textarea id="motivo-reprog" rows={3} maxLength={255} className={`${claseInput} resize-none`}
+      <div className="mt-4 [&_label]:text-xs [&_label]:font-medium">
+        <Campo etiqueta="Motivo de reprogramación (Obligatorio)" htmlFor="motivo-reprog" derecha={`${motivo.length}/255`}>
+          <textarea id="motivo-reprog" rows={3} maxLength={255} className={`${claseInput} resize-none bg-campo!`}
             placeholder="Indique la razón del cambio…" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
         </Campo>
       </div>

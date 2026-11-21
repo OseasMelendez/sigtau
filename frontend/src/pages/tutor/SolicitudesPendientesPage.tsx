@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { BookOpen, CalendarCheck, CalendarDays, CalendarRange, Check, Clock, HelpCircle, Info, MapPin, X } from 'lucide-react';
 import { solicitudes } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
-import { duracion, haceCuanto, textoFranja } from '../../lib/fechas';
-import { Alerta, Boton, Campo, Cargando, Dato, Encabezado, Modal, Tarjeta, Vacio, claseInput } from '../../components/ui';
+import { duracion, fechaConDia, haceCuanto, textoFranja } from '../../lib/fechas';
+import { Alerta, Boton, Campo, Cargando, Dato, Modal, Tarjeta, Vacio, claseInput } from '../../components/ui';
 import { Iniciales } from '../../components/Layout';
 import { useToast } from '../../components/Toast';
 import type { SolicitudTutor } from '../../types';
@@ -22,48 +22,60 @@ export function SolicitudesPendientesPage() {
   const asignaturas = [...new Map(datos.map((s) => [s.asignatura.id_asignatura, s.asignatura])).values()];
   const lista = filtro ? datos.filter((s) => s.asignatura.id_asignatura === filtro) : datos;
   const chip = (activo: boolean) =>
-    `rounded-full border px-3.5 py-1 text-xs font-semibold ${activo ? 'border-primario bg-primario-suave text-primario-oscuro' : 'border-borde bg-white text-texto-suave hover:bg-fondo'}`;
+    `rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${activo ? 'bg-primario-suave text-primario-oscuro' : 'bg-campo text-texto-suave hover:bg-borde'}`;
+  const botonChico = '!rounded-md !px-3 !py-1.5 text-xs font-medium';
 
   return (
-    <div className="max-w-6xl">
-      <Encabezado titulo="Mis Solicitudes Pendientes" subtitulo="Revisa y gestiona las solicitudes de tutoría de los estudiantes.">
-        <Link to="/tutor/programacion" className="flex items-center gap-1.5 text-sm font-semibold text-primario hover:underline">
-          <CalendarRange size={16} /> Ver en calendario
-        </Link>
-      </Encabezado>
-      <div className="-mt-2 mb-5 flex flex-wrap gap-2">
-          <button className={chip(!filtro)} onClick={() => setFiltro(0)}>Todas ({datos.length})</button>
-          {asignaturas.map((a) => (
-            <button key={a.id_asignatura} className={chip(filtro === a.id_asignatura)} onClick={() => setFiltro(a.id_asignatura)}>
-              {a.nombre} ({datos.filter((s) => s.asignatura.id_asignatura === a.id_asignatura).length})
-            </button>
-          ))}
+    <div className="max-w-5xl">
+      {/* Figma 25:58: los filtros van a la derecha del título */}
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Mis Solicitudes Pendientes</h1>
+          <p className="mt-1 text-sm text-texto-suave">Revisa y gestiona las solicitudes de tutoría de los estudiantes.</p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
+            <button className={chip(!filtro)} onClick={() => setFiltro(0)}>Todas ({datos.length})</button>
+            {asignaturas.map((a) => (
+              <button key={a.id_asignatura} className={chip(filtro === a.id_asignatura)} onClick={() => setFiltro(a.id_asignatura)}>
+                {a.nombre} ({datos.filter((s) => s.asignatura.id_asignatura === a.id_asignatura).length})
+              </button>
+            ))}
+          </div>
+          <Link to="/tutor/programacion" className="flex items-center gap-1.5 text-xs font-semibold text-primario hover:underline">
+            <CalendarRange size={14} /> Ver en calendario
+          </Link>
+        </div>
       </div>
 
       {lista.length === 0 ? <Vacio texto="No tienes solicitudes pendientes. ¡Todo al día!" /> : (
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2">
           {lista.map((s) => (
-            <Tarjeta key={s.id_solicitud} className="flex flex-col">
-              <div className="flex items-center gap-3 border-b border-borde pb-4">
-                <Iniciales nombre={s.estudiante.nombre_completo} className="size-11" />
-                <div>
-                  <p className="text-lg font-medium">{s.estudiante.nombre_completo}</p>
-                  <p className="flex items-center gap-1 text-xs text-texto-suave"><Clock size={12} /> {haceCuanto(s.fecha_solicitud)} · {s.estudiante.carrera}</p>
+            <Tarjeta key={s.id_solicitud} className="flex flex-col !rounded-xl !p-4">
+              <div className="flex items-center gap-3 border-b border-borde pb-3">
+                <Iniciales nombre={s.estudiante.nombre_completo} className="size-10 text-sm" />
+                <div className="min-w-0">
+                  <p className="font-medium">{s.estudiante.nombre_completo}</p>
+                  <p className="flex items-center gap-1 text-[11px] text-texto-suave">
+                    <Clock size={11} className="shrink-0" /> <span className="truncate">{haceCuanto(s.fecha_solicitud)} · {s.estudiante.carrera}</span>
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-col gap-4 py-4">
-                <Dato icono={<BookOpen size={14} />} etiqueta="Materia">{s.asignatura.nombre}</Dato>
+              <div className="flex flex-col gap-3.5 py-4">
+                <Dato icono={<BookOpen size={14} />} etiqueta="Materia"><span className="font-semibold">{s.asignatura.nombre}</span></Dato>
                 <Dato icono={<CalendarDays size={14} />} etiqueta="Horario seleccionado">
-                  <span className="font-normal">{textoFranja(s.franja)}</span>
+                  <span className="text-xs font-normal">{textoFranja(s.franja)}</span>
                 </Dato>
                 <Dato icono={<HelpCircle size={14} />} etiqueta="Dificultad declarada">
-                  <span className="font-normal">{s.descripcion_dificultad}</span>
+                  <span className="text-xs font-normal">{s.descripcion_dificultad}</span>
                 </Dato>
               </div>
-              <div className="mt-auto flex items-center gap-3 border-t border-borde pt-4">
-                <p className="flex flex-1 items-center gap-1.5 text-xs text-texto-suave"><Info size={14} /> Registra fecha y hora de la acción</p>
-                <Boton variante="peligro-borde" onClick={() => setRechazar(s)}><X size={16} /> Rechazar</Boton>
-                <Boton onClick={() => setAprobar(s)}><Check size={16} /> Aprobar</Boton>
+              <div className="mt-auto flex items-center gap-2 border-t border-borde pt-3">
+                <p className="flex max-w-28 flex-1 items-center gap-1.5 text-[10px] leading-tight text-texto-suave"><Info size={13} className="shrink-0" /> Registra fecha y hora de la acción</p>
+                <div className="ml-auto flex gap-2">
+                  <Boton variante="peligro-borde" className={botonChico} onClick={() => setRechazar(s)}><X size={14} /> Rechazar</Boton>
+                  <Boton className={botonChico} onClick={() => setAprobar(s)}><Check size={14} /> Aprobar</Boton>
+                </div>
               </div>
             </Tarjeta>
           ))}
@@ -102,31 +114,43 @@ export function ModalAprobar({ solicitud: s, onCerrar, onListo }: { solicitud: S
   };
 
   return (
-    <Modal abierto titulo="Aprobar solicitud" onCerrar={cerrar}
-      pie={<><Boton variante="secundario" onClick={cerrar}>Cancelar</Boton><Boton cargando={enviando} onClick={confirmar}>Aprobar y confirmar</Boton></>}>
-      <div className="rounded-xl border border-borde bg-fondo/60 p-4">
+    <Modal abierto titulo="Aprobar solicitud" onCerrar={cerrar} ancho="max-w-md"
+      claseCabecera="bg-fondo-tutor !py-3.5 [&_h2]:text-lg [&_h2]:font-medium [&_h2]:text-primario-oscuro"
+      pie={<>
+        <Boton variante="secundario" className="!rounded-md !border-primario/60 !py-1.5 text-xs font-medium" onClick={cerrar}>Cancelar</Boton>
+        <Boton cargando={enviando} className="!rounded-md !py-1.5 text-xs font-medium" onClick={confirmar}>Aprobar y confirmar</Boton>
+      </>}>
+      {/* Figma 276:4 */}
+      <div className="rounded-xl border border-primario/30 bg-fondo-tutor p-3.5">
         <div className="flex items-center gap-3">
-          <Iniciales nombre={s.estudiante.nombre_completo} className="size-11" />
-          <div>
-            <p className="font-semibold">{s.estudiante.nombre_completo}</p>
-            <p className="flex items-center gap-1.5 text-sm text-texto-suave"><BookOpen size={14} /> {s.asignatura.nombre}</p>
-            <p className="flex items-center gap-1.5 text-sm text-texto-suave"><Clock size={14} /> Duración: {duracion(s.franja.hora_inicio, s.franja.hora_fin)}</p>
+          <Iniciales nombre={s.estudiante.nombre_completo} className="size-10 text-sm" />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-semibold">{s.estudiante.nombre_completo}</p>
+              <span className="rounded-full bg-primario px-2.5 py-0.5 text-[10px] text-white">Por Confirmar</span>
+            </div>
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-texto-suave"><BookOpen size={12} /> {s.asignatura.nombre}</p>
+            <p className="flex items-center gap-1.5 text-xs text-texto-suave"><Clock size={12} /> Duración: {duracion(s.franja.hora_inicio, s.franja.hora_fin)}</p>
           </div>
         </div>
-        <p className="mt-3 border-t border-borde pt-3 text-sm text-texto-suave italic">"{s.descripcion_dificultad}"</p>
+        <p className="mt-3 border-t border-borde pt-3 text-xs text-texto-suave italic">"{s.descripcion_dificultad}"</p>
       </div>
 
-      <p className="mt-5 mb-1.5 text-sm font-semibold">Horario solicitado</p>
-      <div className="flex items-center gap-3 rounded-lg border border-borde bg-fondo px-4 py-3 text-sm" aria-readonly>
-        <CalendarCheck size={20} className="text-primario" /> {textoFranja(s.franja)}
+      <p className="mt-4 mb-1.5 text-xs font-medium">Horario Solicitado</p>
+      <div className="flex items-center gap-3 rounded-lg border border-borde bg-campo/60 px-4 py-3 text-sm" aria-readonly>
+        <CalendarCheck size={18} className="shrink-0 text-primario" />
+        <div>
+          <p>{fechaConDia(s.franja.fecha)}</p>
+          <p className="text-texto-suave">{s.franja.hora_inicio} – {s.franja.hora_fin}</p>
+        </div>
       </div>
 
-      <p className="mt-5 mb-1.5 text-sm font-semibold">Modalidad</p>
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm"><MapPin size={14} /> Presencial</span>
+      <p className="mt-4 mb-1.5 text-xs font-medium">Modalidad</p>
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-campo px-3 py-1.5 text-xs"><MapPin size={13} /> Presencial</span>
 
-      <div className="mt-5">
+      <div className="mt-4 [&_label]:text-xs [&_label]:font-medium">
         <Campo etiqueta="Lugar" htmlFor="lugar" error={error && !lugar.trim() ? error : undefined}>
-          <input id="lugar" className={claseInput} maxLength={100} placeholder="Ej: Aula 21, Edificio de Ingeniería" autoFocus
+          <input id="lugar" className={`${claseInput} border-borde bg-campo/60!`} maxLength={100} placeholder="Ej: Aula 21, Edificio de Ingeniería" autoFocus
             value={lugar} onChange={(e) => setLugar(e.target.value)} aria-invalid={!!error && !lugar.trim()} />
         </Campo>
       </div>
@@ -158,7 +182,7 @@ function ModalRechazar({ solicitud: s, onCerrar, onListo }: { solicitud: Solicit
   };
 
   return (
-    <Modal abierto titulo="Rechazar solicitud" icono={<X size={20} className="text-peligro" />} onCerrar={cerrar} ancho="max-w-md"
+    <Modal abierto titulo="Rechazar solicitud" onCerrar={cerrar} ancho="max-w-md"
       pie={<><Boton variante="secundario" onClick={cerrar}>Volver</Boton><Boton variante="peligro" cargando={enviando} onClick={confirmar}>Rechazar solicitud</Boton></>}>
       <p className="mb-4 text-sm">
         Vas a rechazar la solicitud de <b>{s.estudiante.nombre_completo}</b> para <b>{s.asignatura.nombre}</b>. La franja quedará libre.

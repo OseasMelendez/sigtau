@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, Lock } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Clock, Lock } from 'lucide-react';
 import { horarios, solicitudes, tutorias } from '../../services';
 import { mensajeError } from '../../lib/hooks';
 import { hoyISO, lunesDe, sumarDias } from '../../lib/fechas';
-import { Alerta, Tarjeta } from '../../components/ui';
+import { Alerta } from '../../components/ui';
 import { SemanaFranjas } from '../../components/SemanaFranjas';
 import { ModalAprobar } from './SolicitudesPendientesPage';
 import type { Franja, SolicitudTutor, Tutoria } from '../../types';
@@ -44,22 +44,22 @@ export function ProgramacionTutoriasPage() {
 
   return (
     <div className="max-w-6xl">
-      <Link to="/tutor" className="mb-2 inline-flex items-center gap-2 text-sm text-texto-suave hover:text-primario">
-        <ArrowLeft size={18} /> Solicitudes Pendientes / Programar Tutoría
+      <Link to="/tutor" className="mb-3 inline-flex items-center gap-3 text-xs text-texto-suave hover:text-primario">
+        <ArrowLeft size={16} className="text-texto" /> Solicitudes Pendientes / Programar Tutoría
       </Link>
-      <p className="mb-5 text-texto-suave">Administra tu disponibilidad y confirma las solicitudes de tutoría.</p>
+      <p className="mb-4 text-sm text-texto-suave">Administra tu disponibilidad y confirma las solicitudes de tutoría.</p>
 
-      <div className="mb-5 flex items-start gap-3 rounded-xl border border-peligro/40 bg-peligro-suave/60 px-4 py-3 text-sm text-peligro">
-        <AlertCircle size={18} className="mt-0.5 shrink-0" />
+      <div className="mb-4 flex items-start gap-3 rounded-lg border border-peligro/50 bg-peligro-suave/70 px-4 py-2.5 text-xs text-peligro">
+        <AlertCircle size={16} className="mt-px shrink-0" />
         <div>
-          <p className="font-semibold">Aviso importante</p>
+          <p className="text-sm font-medium">Aviso Importante</p>
           <p>No se pueden eliminar franjas con tutorías programadas. Debes reprogramar o cancelar la tutoría primero.</p>
         </div>
       </div>
       {error && <div className="mb-4"><Alerta>{error}</Alerta></div>}
 
-      <Tarjeta>
-        <SemanaFranjas
+      <div>
+        <SemanaFranjas cuadricula aspecto="calendario" leyenda={false}
           lunes={lunes} onCambiarSemana={setLunes} franjas={franjas}
           deshabilitar={(f) => !solicitudDe(f) && !tutoriaDe(f)}
           onElegir={(f) => {
@@ -69,34 +69,44 @@ export function ProgramacionTutoriasPage() {
             if (t) navigate(`/tutor/tutorias/${t.id_tutoria}`);
           }}
           estilo={(f) => {
-            if (solicitudDe(f)) return 'border-2 border-primario bg-white text-primario-oscuro hover:!bg-primario-suave';
+            // Figma 276:248
+            if (solicitudDe(f)) return 'border-2 border-primario bg-campo text-texto hover:!bg-primario-suave';
             if (tutoriaDe(f)) return 'bg-primario-oscuro text-white';
             if (f.estado === 'Disponible') return 'border-l-4 border-primario bg-primario-suave text-primario-oscuro';
             return undefined;
           }}
-          renderAcciones={(f) => {
+          renderContenido={(f) => {
             const s = solicitudDe(f);
             const t = tutoriaDe(f);
+            const hora = <span className="font-semibold">{f.hora_inicio} – {f.hora_fin}</span>;
             if (s) return (
-              <span className="mt-1 block text-left font-normal">
-                <span className="block truncate font-semibold">{s.estudiante.nombre_completo}</span>
-                <span className="block truncate">{s.asignatura.nombre}</span>
-                <span className="mt-1 inline-block rounded-full bg-primario px-2 py-0.5 text-[10px] text-white">Por confirmar</span>
+              <span className="flex w-full flex-col leading-tight">
+                <span className="flex items-start justify-between gap-1">{hora}<Lock size={11} className="shrink-0" /></span>
+                <span className="mt-0.5 truncate font-semibold">{s.estudiante.nombre_completo}</span>
+                <span className="truncate text-[9px] text-texto-suave">{s.asignatura.nombre}</span>
+                <span className="mt-1 self-start rounded-full bg-primario px-1.5 py-px text-[9px] text-white">Por confirmar</span>
               </span>
             );
             if (t) return (
-              <span className="mt-1 flex items-center gap-1 text-left font-normal">
-                <Lock size={10} className="shrink-0" /> <span className="truncate">{t.estudiante.nombre_completo}</span>
+              <span className="flex w-full flex-col leading-tight">
+                <span className="flex items-start justify-between gap-1">{hora}<Lock size={11} className="shrink-0" /></span>
+                <span className="mt-0.5 truncate text-white/80">{t.estudiante.nombre_completo}</span>
               </span>
             );
-            return f.estado === 'Disponible' ? <span className="mt-0.5 block font-normal">Disponible</span> : null;
+            return (
+              <span className="flex w-full flex-col leading-tight">
+                <span className="flex items-center gap-1"><Clock size={10} className="shrink-0" />{hora}</span>
+                <span className="mt-0.5 text-primario/70">{f.estado === 'Disponible' ? 'Disponible' : f.estado}</span>
+              </span>
+            );
           }}
         />
-        <div className="mt-3 flex gap-4 text-xs text-texto-suave">
-          <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-primario bg-white" /> Por confirmar (clic para aprobar)</span>
+        <div className="mt-3 flex flex-wrap gap-4 text-[11px] text-texto-suave">
+          <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-primario bg-campo" /> Por confirmar (clic para aprobar)</span>
           <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-primario-oscuro" /> Tutoría programada</span>
+          <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-primario-suave ring-1 ring-primario" /> Disponible</span>
         </div>
-      </Tarjeta>
+      </div>
 
       <ModalAprobar solicitud={aprobar} onCerrar={() => setAprobar(null)} onListo={() => { setAprobar(null); cargar(); }} />
     </div>
