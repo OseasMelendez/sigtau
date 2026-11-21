@@ -15,7 +15,7 @@ las pantallas (cambio en BD → `npx prisma db pull && npx prisma generate` → 
 | 7 | ✅ **Departamento del tutor** | Historial (3:333) | **Hecho:** columna `tutor.departamento`, en Historial, Detalle del Tutor y Detalles de Sesión; se edita en Registrar/Editar Tutor |
 | 8 | ✅ **Estado "Reprogramada"** | Historial (3:333) | **Hecho:** `Tutoria.reprogramada` (hay una reprogramación Aceptada) y etiqueta en el Historial |
 | 9 | ✅ **Participación por Facultad** | Inicio coordinador (99:695) | **Hecho como "Participación por Carrera"** (la BD tiene una sola facultad): `participacion_por_carrera` en `GET /reportes/metricas` |
-| 10 | **Registro de Actividad** completo + "Ver todo el historial" | Inicio coordinador (99:695) | No hay tabla de bitácora. Hoy se muestran las últimas 4 notificaciones del coordinador. Para un historial real: tabla `bitacora` (usuario, acción, fecha) + endpoint |
+| 10 | ❌ **Registro de Actividad** completo + "Ver todo el historial" | Inicio coordinador (99:695) | **Descartado** (no es requisito funcional y tocaba todos los módulos). Se queda la tarjeta con las últimas notificaciones del coordinador |
 
 ## Agregado fuera del Figma
 - ✅ **Mi perfil** (clic en el avatar o el nombre del menú, o en el avatar de la cabecera): foto de perfil, datos de la cuenta y **cambio de contraseña** (`POST /perfil/contrasena`). Si el usuario aún tiene la contraseña inicial (`debe_cambiar_contrasena`), se abre solo una vez por sesión con un aviso (p. ej. `ru22004`). No es obligatorio: el usuario puede cerrarlo.
