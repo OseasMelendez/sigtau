@@ -80,8 +80,8 @@ export function UsuariosPage() {
 
       {error && <div className="mb-4"><Alerta>{error}</Alerta></div>}
       {cargando && !datos ? <Cargando /> : lista.length === 0 ? <Vacio texto="No se encontraron usuarios." /> : (
-        <div className="overflow-hidden rounded-2xl border border-borde bg-white shadow-sm">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-2xl border border-borde bg-white shadow-sm">
+          <table className="w-full min-w-[48rem] text-sm">
             <thead className="bg-fondo text-left text-texto-suave">
               <tr>
                 <th className="px-5 py-3 font-medium">Nombre</th>

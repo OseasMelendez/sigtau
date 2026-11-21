@@ -1,7 +1,7 @@
 import { useState, useSyncExternalStore } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  BookOpen, CalendarDays, ChartColumn, FileText, GraduationCap, History, House, LogOut, Plus, Users,
+  BookOpen, CalendarDays, ChartColumn, FileText, GraduationCap, History, House, LogOut, Menu, Plus, Users,
   type LucideIcon,
 } from 'lucide-react';
 import { useAuth, type Rol } from '../auth/AuthContext';
@@ -90,6 +90,9 @@ const CLAVE_AVISO = 'sigtau:aviso-contrasena';
 export function Layout() {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
+  // En teléfono el menú lateral se oculta y se abre con el botón ☰ (en escritorio siempre visible)
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const cerrarMenu = () => setMenuAbierto(false);
   const [perfilAbierto, setPerfilAbierto] = useState(() => {
     try { return !!usuario?.debe_cambiar_contrasena && !sessionStorage.getItem(CLAVE_AVISO); } catch { return false; }
   });
@@ -115,7 +118,10 @@ export function Layout() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="fixed inset-y-0 left-0 flex w-56 flex-col border-r border-borde bg-superficie px-4 py-5">
+      {/* Fondo oscuro detrás del menú abierto en teléfono */}
+      {menuAbierto && <div className="fixed inset-0 z-30 bg-black/30 md:hidden" onClick={cerrarMenu} aria-hidden />}
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-borde bg-superficie px-4 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] transition-transform md:w-56 md:translate-x-0 ${
+        menuAbierto ? 'translate-x-0 shadow-xl' : '-translate-x-full'}`}>
         <div className="mb-6 flex items-center gap-2.5 px-1">
           <span className="flex size-10 items-center justify-center rounded-lg bg-primario text-white">
             <GraduationCap size={22} />
@@ -128,7 +134,7 @@ export function Layout() {
 
         {menu.boton && (
           <NavLink
-            to={menu.boton.a}
+            to={menu.boton.a} onClick={cerrarMenu}
             className="mb-4 flex items-center justify-center gap-2 rounded-lg bg-primario px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primario-hover"
           >
             <menu.boton.icono size={18} /> {menu.boton.texto}
@@ -137,7 +143,7 @@ export function Layout() {
 
         <nav className="flex flex-col gap-1.5">
           {menu.items.map((it) => (
-            <NavLink key={it.a} to={it.a} end={it.exacto} className={claseItem}>
+            <NavLink key={it.a} to={it.a} end={it.exacto} className={claseItem} onClick={cerrarMenu}>
               <it.icono size={18} /> {it.texto}
             </NavLink>
           ))}
@@ -145,7 +151,7 @@ export function Layout() {
 
         <div className="mt-auto flex items-center gap-3 border-t border-borde pt-4">
           {/* Clic en el avatar o el nombre: "Mi perfil" (foto y contraseña) */}
-          <button type="button" onClick={abrirPerfil} title="Mi perfil"
+          <button type="button" onClick={() => { cerrarMenu(); abrirPerfil(); }} title="Mi perfil"
             className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 -m-1 text-left hover:bg-fondo">
             <span className="relative shrink-0">
               <Iniciales id={usuario.id_usuario} nombre={usuario.nombre_completo} className="size-9 text-sm" />
@@ -162,14 +168,22 @@ export function Layout() {
         </div>
       </aside>
 
-      <div className="ml-56 flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-3 border-b border-borde bg-superficie px-6">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:ml-56">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-end gap-3 border-b border-borde bg-superficie px-4 md:px-6">
+          {/* Solo en teléfono: botón del menú y nombre del sistema */}
+          <button type="button" onClick={() => setMenuAbierto(true)} aria-label="Abrir menú"
+            className="-ml-1 rounded-lg p-2 text-texto-suave hover:bg-fondo md:hidden">
+            <Menu size={22} />
+          </button>
+          <span className="mr-auto flex items-center gap-2 font-bold text-primario md:hidden">
+            <GraduationCap size={20} /> SIGTAU
+          </span>
           <NotificacionesPanel />
           <button type="button" onClick={abrirPerfil} title="Mi perfil" className="rounded-full">
             <Iniciales id={usuario.id_usuario} nombre={usuario.nombre_completo} className="size-9 text-sm" />
           </button>
         </header>
-        <main className="flex-1 p-8">
+        <main className="min-w-0 flex-1 p-4 md:p-8">
           <Outlet />
         </main>
         <MiPerfil abierto={perfilAbierto} onCerrar={cerrarPerfil} />

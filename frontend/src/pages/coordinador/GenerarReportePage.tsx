@@ -207,13 +207,13 @@ export function GenerarReportePage() {
         </Tarjeta>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-borde bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl border border-borde bg-white shadow-sm">
         <div className="px-6 pt-5 pb-4">
           <h2 className="text-lg font-medium">Historial de Reportes Generados</h2>
           <p className="text-xs text-texto-suave">Últimos reportes generados en el sistema.</p>
         </div>
         {historial.datos?.length === 0 ? <p className="px-6 pb-6 text-sm text-texto-suave">Aún no se han generado reportes.</p> : (
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[46rem] text-sm">
             <thead className="bg-slate-100 text-left text-[11px] tracking-wide text-texto-suave uppercase">
               <tr><th className="px-6 py-3 font-medium">Tipo de reporte</th><th className="px-4 py-3 font-medium">Filtros aplicados</th>
                 <th className="px-4 py-3 font-medium">Fecha de generación</th><th className="px-4 py-3 font-medium">Responsable</th><th className="px-4 py-3 text-center font-medium">Acción</th></tr>

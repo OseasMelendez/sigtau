@@ -86,7 +86,7 @@ export function SemanaFranjas({
     <div className="flex items-center justify-between gap-3 px-4 py-3">
       <div className="flex items-center gap-2">
         <button type="button" onClick={() => onCambiarSemana(sumarDias(lunes, -7))} className="rounded-full p-1.5 hover:bg-white" aria-label="Semana anterior"><ChevronLeft size={18} /></button>
-        <p className="min-w-52 text-center text-lg font-medium capitalize">
+        <p className="text-center text-base font-medium capitalize sm:min-w-52 sm:text-lg">
           {fmt(lunes, { day: 'numeric', month: 'short' })} – {fmt(domingo, { day: 'numeric', month: 'short', year: 'numeric' })}
         </p>
         <button type="button" onClick={() => onCambiarSemana(sumarDias(lunes, 7))} className="rounded-full p-1.5 hover:bg-white" aria-label="Semana siguiente"><ChevronRight size={18} /></button>
@@ -99,7 +99,7 @@ export function SemanaFranjas({
   ) : (
     <div className="mb-4 flex items-center justify-center gap-4">
       <button type="button" onClick={() => onCambiarSemana(sumarDias(lunes, -7))} className="rounded-full p-1.5 hover:bg-fondo" aria-label="Semana anterior"><ChevronLeft size={18} /></button>
-      <p className="min-w-64 text-center text-sm font-semibold">{titulo}</p>
+      <p className="text-center text-sm font-semibold sm:min-w-64">{titulo}</p>
       <button type="button" onClick={() => onCambiarSemana(sumarDias(lunes, 7))} className="rounded-full p-1.5 hover:bg-fondo" aria-label="Semana siguiente"><ChevronRight size={18} /></button>
       {lunes !== lunesDe(hoy) && (
         <button type="button" onClick={() => onCambiarSemana(lunesDe(hoy))} className="text-xs font-semibold text-primario hover:underline">Hoy</button>
@@ -141,6 +141,8 @@ export function SemanaFranjas({
     cuerpo = (
       <div className="overflow-hidden rounded-xl border border-borde bg-fondo-tutor">
         {navegacion}
+        {/* En teléfono la semana se desplaza a lo ancho en lugar de aplastar las 7 columnas */}
+        <div className="overflow-x-auto"><div className="min-w-[44rem]">
         {/* scrollbar-gutter: la cabecera reserva el mismo ancho que la barra de desplazamiento
             del cuerpo, así las líneas de las columnas quedan alineadas en cualquier navegador */}
         <div className={`${columnas} overflow-hidden border-y border-borde bg-white [scrollbar-gutter:stable]`}>
@@ -178,12 +180,14 @@ export function SemanaFranjas({
             ))}
           </div>
         </div>
+        </div></div>
       </div>
     );
   } else if (cuadricula) {
     cuerpo = (
       <div>
         {navegacion}
+        <div className="overflow-x-auto"><div className="min-w-[38rem]">
         <div className="grid grid-cols-[3.75rem_repeat(7,1fr)] gap-1.5 pr-2">
           <div />
           {dias.map((d) => <div key={d}>{cabeceraDia(d)}</div>)}
@@ -210,12 +214,14 @@ export function SemanaFranjas({
             ))}
           </div>
         </div>
+        </div></div>
       </div>
     );
   } else {
     cuerpo = (
       <div>
         {navegacion}
+        <div className="overflow-x-auto"><div className="min-w-[40rem]">
         <div className="grid grid-cols-7 gap-2">
           {dias.map((d) => {
             const delDia = franjas.filter((f) => f.fecha === d).sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
@@ -245,6 +251,7 @@ export function SemanaFranjas({
             );
           })}
         </div>
+        </div></div>
       </div>
     );
   }

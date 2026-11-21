@@ -41,7 +41,7 @@ export function InicioEstudiantePage() {
   return (
     <div className="relative max-w-3xl">
       {/* Manchas decorativas del fondo (Figma 1:5) */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 top-16 left-56 -z-10 overflow-hidden">
+      <div aria-hidden className="pointer-events-none fixed inset-0 top-16 left-0 -z-10 overflow-hidden md:left-56">
         <div className="absolute -top-10 left-[2%] size-[26rem] rounded-full bg-primario-suave/40 blur-2xl" />
         <div className="absolute top-[6%] right-[8%] size-[30rem] rounded-[45%] bg-primario-suave/45 blur-2xl" />
         <div className="absolute bottom-[-12%] left-[-4%] size-[34rem] rounded-full bg-primario-suave/35 blur-2xl" />

@@ -33,8 +33,8 @@ export function SolicitudesPendientesPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Mis Solicitudes Pendientes</h1>
           <p className="mt-1 text-sm text-texto-suave">Revisa y gestiona las solicitudes de tutoría de los estudiantes.</p>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <div className="flex flex-wrap gap-2 sm:justify-end">
             <button className={chip(!filtro)} onClick={() => setFiltro(0)}>Todas ({datos.length})</button>
             {asignaturas.map((a) => (
               <button key={a.id_asignatura} className={chip(filtro === a.id_asignatura)} onClick={() => setFiltro(a.id_asignatura)}>

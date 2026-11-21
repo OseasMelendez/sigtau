@@ -80,7 +80,7 @@ export function DetalleTutorPage() {
         </Tarjeta>
       </div>
 
-      <div className="fixed right-0 bottom-0 left-56 flex justify-end gap-3 border-t border-borde bg-white px-8 py-4">
+      <div className="fixed right-0 bottom-0 left-0 flex justify-end gap-3 border-t border-borde bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:left-56 md:px-8 md:py-4">
         <Boton variante="secundario" className="rounded-full" onClick={() => navigate(volver)}>Cancelar</Boton>
         <Boton className="rounded-full" disabled={!elegida}
           onClick={() => navigate(`${volver}&tutor=${idTutor}&horario=${elegida!.id_horario}`)}>
