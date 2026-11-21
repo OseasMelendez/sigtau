@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, CalendarCheck, CalendarDays, CalendarRange, Check, Clock, HelpCircle, Info, MapPin, X } from 'lucide-react';
+import { Paperclip, BookOpen, CalendarCheck, CalendarDays, CalendarRange, Check, Clock, HelpCircle, Info, MapPin, X } from 'lucide-react';
 import { solicitudes } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { duracion, fechaConDia, haceCuanto, textoFranja } from '../../lib/fechas';
@@ -68,6 +68,8 @@ export function SolicitudesPendientesPage() {
                 </Dato>
                 <Dato icono={<HelpCircle size={14} />} etiqueta="Dificultad declarada">
                   <span className="text-xs font-normal">{s.descripcion_dificultad}</span>
+                  {s.tiene_documento && <><br /><a href={solicitudes.urlDocumento(s.id_solicitud)} target="_blank" rel="noreferrer"
+                    className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium text-primario hover:underline"><Paperclip size={12} /> Ver documento de apoyo</a></>}
                 </Dato>
               </div>
               <div className="mt-auto flex items-center gap-2 border-t border-borde pt-3">

@@ -9,7 +9,13 @@ import {
   NotFoundException,
   Param,
   Post,
+  StreamableFile,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { createReadStream, existsSync, mkdirSync, writeFileSync } from 'fs';
+import { extname, join, resolve } from 'path';
 import {
   IsInt,
   IsNotEmpty,
@@ -32,6 +38,25 @@ import { Roles, Usuario, type UsuarioActual } from '../auth/decorators';
 
 const recortar = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
+
+// ---------- Documento de apoyo (opcional): PDF, Word o imagen, máx. 5 MB ----------
+/** Carpeta donde se guardan los archivos (backend/uploads/solicitudes, fuera de git) */
+const CARPETA_DOCS = resolve(process.cwd(), 'uploads', 'solicitudes');
+const MAX_DOC = 5 * 1024 * 1024;
+const TIPOS_DOC: Record<string, string> = {
+  '.pdf': 'application/pdf',
+  '.doc': 'application/msword',
+  '.docx':
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+};
+interface ArchivoSubido {
+  originalname: string;
+  size: number;
+  buffer: Buffer;
+}
 
 export class CrearSolicitudDto {
   @IsInt({ message: 'Selecciona una asignatura' }) id_asignatura!: number;
@@ -71,6 +96,51 @@ export class SolicitudesService {
       orderBy: { fecha_solicitud: 'desc' },
     });
     return lista.map(mapSolicitudEstudiante);
+  }
+
+  /** Guarda el documento de una solicitud propia y Pendiente (se sube justo después de crearla). */
+  async subirDocumento(idEstudiante: number, idSolicitud: number, a?: ArchivoSubido) {
+    if (!a) throw new BadRequestException('Selecciona un archivo');
+    const ext = extname(a.originalname).toLowerCase();
+    if (!TIPOS_DOC[ext])
+      throw new BadRequestException('Solo se permiten archivos PDF, Word o imágenes (PNG, JPG)');
+    if (a.size > MAX_DOC)
+      throw new BadRequestException('El documento no puede superar 5 MB');
+    const s = await this.prisma.solicitud_tutoria.findFirst({
+      where: { id_solicitud: idSolicitud, id_estudiante: idEstudiante },
+    });
+    if (!s) throw new NotFoundException('La solicitud no existe.');
+    if (s.estado !== 'Pendiente')
+      throw new BadRequestException('Solo se adjuntan documentos a solicitudes pendientes');
+    mkdirSync(CARPETA_DOCS, { recursive: true });
+    const nombre = `solicitud-${idSolicitud}${ext}`;
+    writeFileSync(join(CARPETA_DOCS, nombre), a.buffer);
+    await this.prisma.solicitud_tutoria.update({
+      where: { id_solicitud: idSolicitud },
+      data: { documento_apoyo: nombre },
+    });
+  }
+
+  /** El documento lo ven el estudiante dueño, el tutor de la franja y el coordinador. */
+  async documento(u: UsuarioActual, idSolicitud: number) {
+    const s = await this.prisma.solicitud_tutoria.findUnique({
+      where: { id_solicitud: idSolicitud },
+      include: { horario_tutor: true },
+    });
+    const puede =
+      s &&
+      (u.rol === 'Coordinador' ||
+        (u.rol === 'Estudiante' && s.id_estudiante === u.id_usuario) ||
+        (u.rol === 'Tutor' && s.horario_tutor.id_tutor === u.id_usuario));
+    if (!puede) throw new NotFoundException('La solicitud no existe.');
+    const ruta = s.documento_apoyo ? join(CARPETA_DOCS, s.documento_apoyo) : '';
+    if (!ruta || !existsSync(ruta))
+      throw new NotFoundException('La solicitud no tiene documento de apoyo.');
+    const ext = extname(ruta).toLowerCase();
+    return new StreamableFile(createReadStream(ruta), {
+      type: TIPOS_DOC[ext] ?? 'application/octet-stream',
+      disposition: `inline; filename="documento-solicitud-${idSolicitud}${ext}"`,
+    });
   }
 
   async crear(
@@ -185,6 +255,23 @@ export class SolicitudesController {
     @Body() d: CrearSolicitudDto,
   ) {
     return this.s.crear(u, d);
+  }
+  @Post(':id/documento')
+  @Roles('Estudiante')
+  @HttpCode(204)
+  @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: MAX_DOC + 1 } }))
+  subirDocumento(
+    @Usuario() u: UsuarioActual,
+    @Param('id') i: string,
+    @UploadedFile() archivo?: ArchivoSubido,
+  ) {
+    return this.s.subirDocumento(u.id_usuario, id(i), archivo);
+  }
+  @Get(':id/documento') documento(
+    @Usuario() u: UsuarioActual,
+    @Param('id') i: string,
+  ) {
+    return this.s.documento(u, id(i));
   }
   @Get('pendientes') @Roles('Tutor') pendientes(@Usuario() u: UsuarioActual) {
     return this.s.pendientes(u.id_usuario);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarDays, Clock, XCircle } from 'lucide-react';
+import { CalendarDays, Clock, Paperclip, XCircle } from 'lucide-react';
 import { solicitudes } from '../../services';
 import { useCarga } from '../../lib/hooks';
 import { nombreTutor } from '../../lib/nombres';
@@ -83,6 +83,8 @@ function TarjetaSolicitud({ s, onResponder }: { s: SolicitudEstudiante; onRespon
         </div>
       </div>
 
+      {s.tiene_documento && <a href={solicitudes.urlDocumento(s.id_solicitud)} target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-primario hover:underline"><Paperclip size={12} /> Ver documento de apoyo</a>}
       {!t?.reprogramacion_pendiente && (
         <p className="flex items-start gap-1.5 text-[11px] text-texto-suave">
           <CalendarDays size={13} className="mt-px shrink-0" /> {textoFranja(t?.franja ?? s.franja)}

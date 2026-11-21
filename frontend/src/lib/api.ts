@@ -60,8 +60,24 @@ async function descargar(ruta: string, body: unknown, nombrePorDefecto: string) 
   URL.revokeObjectURL(url);
 }
 
+/** Sube un archivo como multipart/form-data en el campo "archivo". */
+async function subir<T>(ruta: string, archivo: File): Promise<T> {
+  const form = new FormData();
+  form.append('archivo', archivo);
+  const res = await fetch(`/api${ruta}`, { method: 'POST', credentials: 'include', body: form }).catch(() => {
+    throw new ApiError(0, 'No se pudo conectar con el servidor.');
+  });
+  const datos = res.status === 204 ? null : await res.json().catch(() => null);
+  if (!res.ok) {
+    const msg = res.status === 413 ? 'El documento no puede superar 5 MB' : datos?.message;
+    throw new ApiError(res.status, msg ?? 'No se pudo subir el archivo.');
+  }
+  return datos as T;
+}
+
 export const api = {
   descargar,
+  subir,
   get: <T>(ruta: string) => request<T>('GET', ruta),
   post: <T>(ruta: string, body?: unknown) => request<T>('POST', ruta, body ?? {}),
   put: <T>(ruta: string, body?: unknown) => request<T>('PUT', ruta, body ?? {}),

@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, CalendarClock, CalendarDays, ClipboardCheck, Clock, FileText, Lightbulb, MapPin, Timer, TrendingUp, UserCheck, XCircle,
+  ArrowLeft, Paperclip, CalendarClock, CalendarDays, ClipboardCheck, Clock, FileText, Lightbulb, MapPin, Timer, TrendingUp, UserCheck, XCircle,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
-import { tutorias } from '../services';
+import { solicitudes, tutorias } from '../services';
 import { useCarga } from '../lib/hooks';
 import { nombreTutor } from '../lib/nombres';
 import { duracion, fechaConDia, fechaHora, textoFranja, yaOcurrio } from '../lib/fechas';
@@ -106,6 +106,8 @@ export function DetalleTutoriaPage() {
           <Tarjeta className="!p-5">
             <h2 className="mb-3 flex items-center gap-2 text-sm font-medium"><FileText size={16} /> Descripción del problema</h2>
             <p className="rounded-lg bg-campo/70 p-4 text-xs leading-relaxed text-texto-suave">"{t.descripcion_dificultad}"</p>
+            {t.tiene_documento && <a href={solicitudes.urlDocumento(t.id_solicitud)} target="_blank" rel="noreferrer"
+                    className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium text-primario hover:underline"><Paperclip size={12} /> Ver documento de apoyo</a>}
           </Tarjeta>
 
           {t.estado === 'Cancelada' && (

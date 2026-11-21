@@ -39,6 +39,10 @@ export const solicitudes = {
   /** Estudiante. POST /solicitudes */
   crear: (d: { id_asignatura: number; id_horario: number; descripcion_dificultad: string }) =>
     api.post<SolicitudEstudiante>('/solicitudes', d),
+  /** Estudiante. POST /solicitudes/:id/documento (multipart, campo "archivo"): documento de apoyo opcional */
+  subirDocumento: (id: number, archivo: File) => api.subir<void>(`/solicitudes/${id}/documento`, archivo),
+  /** URL para abrir el documento de apoyo (estudiante dueño, tutor de la franja o coordinador) */
+  urlDocumento: (id: number) => `/api/solicitudes/${id}/documento`,
   /** Tutor. GET /solicitudes/pendientes */
   pendientes: () => api.get<SolicitudTutor[]>('/solicitudes/pendientes'),
   /** Tutor. POST /solicitudes/:id/aprobar  { lugar } -> crea la tutoría (RF-04/RF-07) */

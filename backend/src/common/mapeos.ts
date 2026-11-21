@@ -107,6 +107,7 @@ export function mapTutoria(t: TutoriaCompleta) {
       carrera: est.carrera.nombre,
     },
     descripcion_dificultad: t.solicitud_tutoria.descripcion_dificultad,
+    tiene_documento: !!t.solicitud_tutoria.documento_apoyo,
     fecha_programacion: t.fecha_programacion,
     motivo_cancelacion: t.motivo_cancelacion,
     fecha_cancelacion: t.fecha_cancelacion,
@@ -147,6 +148,7 @@ export function mapSolicitudEstudiante(s: SolicitudCompleta) {
     id_solicitud: s.id_solicitud,
     estado: s.estado,
     descripcion_dificultad: s.descripcion_dificultad,
+    tiene_documento: !!s.documento_apoyo,
     motivo_rechazo: s.motivo_rechazo,
     fecha_solicitud: s.fecha_solicitud,
     fecha_respuesta: s.fecha_respuesta,
@@ -175,6 +177,7 @@ export function mapSolicitudTutor(s: SolicitudCompleta) {
     id_solicitud: s.id_solicitud,
     fecha_solicitud: s.fecha_solicitud,
     descripcion_dificultad: s.descripcion_dificultad,
+    tiene_documento: !!s.documento_apoyo,
     asignatura: mapAsignatura(s.asignatura),
     franja: mapFranja(s.horario_tutor),
     estudiante: {

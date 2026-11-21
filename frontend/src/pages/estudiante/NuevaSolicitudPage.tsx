@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CalendarCheck, ChevronDown } from 'lucide-react';
+import { CalendarCheck, ChevronDown, FileText, UploadCloud, X } from 'lucide-react';
 import { catalogos, solicitudes, tutores } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { nombreTutor } from '../../lib/nombres';
@@ -13,6 +13,17 @@ import type { Franja, TutorResumen } from '../../types';
 const MAX = 500;
 const DIAS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 export const BORRADOR = 'sigtau:borrador-dificultad';
+
+/** Documento de apoyo (opcional). Se guarda fuera del componente para no perderlo al ir a "Ver disponibilidad" y volver. */
+let archivoGuardado: File | null = null;
+const EXT_DOC = ['.pdf', '.doc', '.docx', '.png', '.jpg', '.jpeg'];
+const MAX_DOC = 5 * 1024 * 1024;
+const validarDoc = (a: File) => {
+  const ext = a.name.slice(a.name.lastIndexOf('.')).toLowerCase();
+  if (!EXT_DOC.includes(ext)) return 'Solo se permiten archivos PDF, Word o imágenes (PNG, JPG)';
+  if (a.size > MAX_DOC) return 'El documento no puede superar 5 MB';
+  return '';
+};
 
 /** Campo relleno lila sin borde, como el select y el textarea del Figma. */
 // "!" porque claseInput ya trae bg-white y border-borde, y Tailwind los generaría después
@@ -48,6 +59,16 @@ export function NuevaSolicitudPage() {
   const [errores, setErrores] = useState<{ asignatura?: string; franja?: string; dificultad?: string }>({});
   const [errorApi, setErrorApi] = useState('');
   const [enviando, setEnviando] = useState(false);
+  const [archivo, setArchivoEstado] = useState<File | null>(archivoGuardado);
+  const [errorDoc, setErrorDoc] = useState('');
+  const [arrastrando, setArrastrando] = useState(false);
+  const setArchivo = (a: File | null) => { archivoGuardado = a; setArchivoEstado(a); };
+  const elegirArchivo = (a?: File | null) => {
+    if (!a) return;
+    const err = validarDoc(a);
+    setErrorDoc(err);
+    if (!err) setArchivo(a);
+  };
 
   useEffect(() => { sessionStorage.setItem(BORRADOR, dificultad); }, [dificultad]);
 
@@ -82,8 +103,17 @@ export function NuevaSolicitudPage() {
 
     setEnviando(true);
     try {
-      await solicitudes.crear({ id_asignatura: idAsignatura, id_horario: franja!.id_horario, descripcion_dificultad: dificultad.trim() });
+      const nueva = await solicitudes.crear({ id_asignatura: idAsignatura, id_horario: franja!.id_horario, descripcion_dificultad: dificultad.trim() });
       sessionStorage.removeItem(BORRADOR);
+      // El documento se sube después de crear la solicitud; si falla, la solicitud igual queda enviada
+      if (archivo) {
+        try {
+          await solicitudes.subirDocumento(nueva.id_solicitud, archivo);
+        } catch (e) {
+          avisar(`La solicitud se envió, pero no se pudo adjuntar el documento: ${mensajeError(e)}`, 'error');
+        }
+        setArchivo(null);
+      }
       avisar('Solicitud enviada. El tutor la revisará pronto.');
       navigate('/estudiante/solicitudes');
     } catch (e) {
@@ -143,10 +173,33 @@ export function NuevaSolicitudPage() {
               onChange={(e) => setDificultad(e.target.value)} />
           </Campo>
 
+          {/* Documento de apoyo (Figma 1:179) */}
+          <Campo etiqueta="Documento de apoyo" opcional htmlFor="documento" error={errorDoc} ayuda="PDF, Word o imagen (PNG, JPG), máx. 5 MB">
+            {archivo ? (
+              <div className="flex items-center gap-3 rounded-lg border border-borde bg-fondo-tutor px-4 py-3 text-sm">
+                <FileText size={18} className="shrink-0 text-primario" />
+                <span className="min-w-0 flex-1 truncate">{archivo.name}</span>
+                <span className="text-xs text-texto-suave">{(archivo.size / 1024 / 1024).toFixed(2)} MB</span>
+                <button type="button" onClick={() => setArchivo(null)} className="rounded p-1 text-texto-suave hover:bg-campo hover:text-peligro" aria-label="Quitar documento"><X size={16} /></button>
+              </div>
+            ) : (
+              <label htmlFor="documento"
+                onDragOver={(e) => { e.preventDefault(); setArrastrando(true); }}
+                onDragLeave={() => setArrastrando(false)}
+                onDrop={(e) => { e.preventDefault(); setArrastrando(false); elegirArchivo(e.dataTransfer.files[0]); }}
+                className={`flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed px-4 py-6 text-center text-sm transition-colors ${arrastrando ? 'border-primario bg-primario-suave/40' : 'border-borde bg-fondo-tutor/60 hover:border-primario/50'}`}>
+                <span className="flex size-9 items-center justify-center rounded-full bg-campo text-texto-suave"><UploadCloud size={18} /></span>
+                <span><span className="font-medium text-primario">Haz clic para subir</span> o arrastra y suelta tu archivo aquí.</span>
+              </label>
+            )}
+            <input id="documento" type="file" className="sr-only" accept={EXT_DOC.join(',')}
+              onChange={(e) => { elegirArchivo(e.target.files?.[0]); e.target.value = ''; }} />
+          </Campo>
+
           {errorApi && <Alerta>{errorApi}</Alerta>}
 
           <div className="flex justify-end gap-3 border-t border-borde pt-5">
-            <Boton type="button" variante="secundario" onClick={() => { sessionStorage.removeItem(BORRADOR); navigate('/estudiante'); }}>
+            <Boton type="button" variante="secundario" onClick={() => { sessionStorage.removeItem(BORRADOR); setArchivo(null); navigate('/estudiante'); }}>
               Cancelar
             </Boton>
             <Boton type="submit" cargando={enviando}>Enviar solicitud</Boton>

@@ -83,6 +83,7 @@ export interface Tutoria {
   };
   estudiante: PersonaResumen & { carrera: string };
   descripcion_dificultad: string;
+  tiene_documento: boolean;     // la solicitud tiene documento de apoyo
   fecha_programacion: string;
   motivo_cancelacion: string | null;
   fecha_cancelacion: string | null;
@@ -97,6 +98,7 @@ export interface SolicitudEstudiante {
   id_solicitud: number;
   estado: EstadoSolicitud;
   descripcion_dificultad: string;
+  tiene_documento: boolean;
   motivo_rechazo: string | null;
   fecha_solicitud: string;
   fecha_respuesta: string | null;
@@ -118,6 +120,7 @@ export interface SolicitudTutor {
   id_solicitud: number;
   fecha_solicitud: string;
   descripcion_dificultad: string;
+  tiene_documento: boolean;
   asignatura: Asignatura;
   franja: Franja;
   estudiante: PersonaResumen & { carrera: string };

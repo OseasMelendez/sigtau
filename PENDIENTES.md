@@ -8,7 +8,7 @@ las pantallas (cambio en BD → `npx prisma db pull && npx prisma generate` → 
 |---|---|---|---|
 | 1 | ✅ **Título profesional del tutor** | Inicio estudiante (1:5), Nueva Solicitud (1:179) | **Hecho:** columna `tutor.titulo`, se antepone al nombre en las pantallas del estudiante (`lib/nombres.ts`) y se edita en Registrar/Editar Tutor |
 | 2 | **Foto de perfil** | Menú lateral, cabecera, Inicio (1:5), Nueva Solicitud (1:179) | Columna `foto_url` en `usuario` + subida de imágenes (hoy se muestran iniciales con `<Iniciales />`) |
-| 3 | **Documento de apoyo** (opcional) en la solicitud | Nueva Solicitud (1:179) | Columna/tabla para el archivo en `solicitud_tutoria`, endpoint de subida (multipart) y zona "arrastra y suelta" en el formulario |
+| 3 | ✅ **Documento de apoyo** (opcional) en la solicitud | Nueva Solicitud (1:179) | **Hecho:** sin cambiar la BD (columna `documento_apoyo`). `POST/GET /solicitudes/:id/documento`, PDF/Word/imagen hasta 5 MB en `backend/uploads/` (fuera de git). Enlace "Ver documento de apoyo" para el estudiante, el tutor y en Detalles de Sesión |
 | 4 | **Enlace "Ver todos"** junto a "Seleccionar Tutor Disponible" | Nueva Solicitud (1:179) | No es de BD: definir qué muestra (¿tutores de todas las asignaturas?). Hoy ya se listan todos los tutores de la asignatura elegida |
 | 5 | **Buscador "Buscar…" en la cabecera** | Tutorías Dashboard / Mis Solicitudes (8:2), Modal Reprogramación (87:1932) | No es de BD: definir qué busca (¿solicitudes por asignatura o tutor?) y agregarlo en `Layout.tsx` |
 | 6 | ✅ **Área de la asignatura** | Historial (3:333) | **Hecho:** columna `asignatura.area`, etiqueta en el detalle del Historial |
