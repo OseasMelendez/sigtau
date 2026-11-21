@@ -8,3 +8,4 @@ coverage/
 backend/uploads/
 # Notas de contexto para Claude Code (solo local)
 CLAUDE.md
+PENDIENTES.md
