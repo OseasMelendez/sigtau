@@ -1,14 +1,13 @@
-import { useRef, useState, useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  BookOpen, Camera, CalendarDays, ChartColumn, FileText, GraduationCap, History, House, LogOut, Plus, Users,
+  BookOpen, CalendarDays, ChartColumn, FileText, GraduationCap, History, House, LogOut, Plus, Users,
   type LucideIcon,
 } from 'lucide-react';
 import { useAuth, type Rol } from '../auth/AuthContext';
 import { NotificacionesPanel } from './NotificacionesPanel';
-import { useToast } from './Toast';
-import { perfil, usuarios as apiUsuarios } from '../services';
-import { mensajeError } from '../lib/hooks';
+import { MiPerfil } from './MiPerfil';
+import { usuarios as apiUsuarios } from '../services';
 
 // ---------- Fotos de perfil ----------
 // "version" cambia cada vez que alguien sube una foto, para que el navegador no muestre la anterior.
@@ -85,43 +84,21 @@ export function Iniciales({ nombre, className = '', id, src }: { nombre: string;
   );
 }
 
-/** Avatar propio del menú lateral: al hacer clic se elige una foto nueva. */
-function MiFoto({ id, nombre }: { id: number; nombre: string }) {
-  const entrada = useRef<HTMLInputElement>(null);
-  const [subiendo, setSubiendo] = useState(false);
-  const avisar = useToast();
-  const subir = async (a?: File) => {
-    if (!a) return;
-    const err = validarFoto(a);
-    if (err) return avisar(err, 'error');
-    setSubiendo(true);
-    try {
-      await perfil.subirFoto(a);
-      refrescarFotos();
-      avisar('Foto de perfil actualizada.');
-    } catch (e) {
-      avisar(mensajeError(e), 'error');
-    } finally {
-      setSubiendo(false);
-    }
-  };
-  return (
-    <button type="button" onClick={() => entrada.current?.click()} disabled={subiendo} title="Cambiar foto de perfil"
-      className="group relative shrink-0 rounded-full disabled:opacity-60">
-      <Iniciales id={id} nombre={nombre} className="size-9 text-sm" />
-      <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100">
-        <Camera size={14} />
-      </span>
-      <input ref={entrada} type="file" accept={EXT_FOTO} className="hidden"
-        onChange={(e) => { subir(e.target.files?.[0]); e.target.value = ''; }} />
-    </button>
-  );
-}
+/** Si el usuario aún tiene la contraseña inicial, "Mi perfil" se abre una vez por sesión para pedirle cambiarla. */
+const CLAVE_AVISO = 'sigtau:aviso-contrasena';
 
 export function Layout() {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
+  const [perfilAbierto, setPerfilAbierto] = useState(() => {
+    try { return !!usuario?.debe_cambiar_contrasena && !sessionStorage.getItem(CLAVE_AVISO); } catch { return false; }
+  });
   if (!usuario) return null;
+  const abrirPerfil = () => setPerfilAbierto(true);
+  const cerrarPerfil = () => {
+    try { sessionStorage.setItem(CLAVE_AVISO, '1'); } catch { /* sin almacenamiento */ }
+    setPerfilAbierto(false);
+  };
   const menu = MENU[usuario.rol];
 
   const salir = async () => {
@@ -167,11 +144,18 @@ export function Layout() {
         </nav>
 
         <div className="mt-auto flex items-center gap-3 border-t border-borde pt-4">
-          <MiFoto id={usuario.id_usuario} nombre={usuario.nombre_completo} />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{usuario.nombre_completo}</p>
-            <p className="text-xs text-texto-suave">{usuario.rol}</p>
-          </div>
+          {/* Clic en el avatar o el nombre: "Mi perfil" (foto y contraseña) */}
+          <button type="button" onClick={abrirPerfil} title="Mi perfil"
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 -m-1 text-left hover:bg-fondo">
+            <span className="relative shrink-0">
+              <Iniciales id={usuario.id_usuario} nombre={usuario.nombre_completo} className="size-9 text-sm" />
+              {usuario.debe_cambiar_contrasena && <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-amber-500 ring-2 ring-white" title="Cambia tu contraseña" />}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold">{usuario.nombre_completo}</span>
+              <span className="block text-xs text-texto-suave">{usuario.rol} · <span className="text-primario">Mi perfil</span></span>
+            </span>
+          </button>
           <button onClick={salir} title="Cerrar sesión" className="rounded p-1 text-texto-suave hover:bg-fondo hover:text-peligro">
             <LogOut size={18} />
           </button>
@@ -181,11 +165,14 @@ export function Layout() {
       <div className="ml-56 flex min-h-screen flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-3 border-b border-borde bg-superficie px-6">
           <NotificacionesPanel />
-          <Iniciales id={usuario.id_usuario} nombre={usuario.nombre_completo} className="size-9 text-sm" />
+          <button type="button" onClick={abrirPerfil} title="Mi perfil" className="rounded-full">
+            <Iniciales id={usuario.id_usuario} nombre={usuario.nombre_completo} className="size-9 text-sm" />
+          </button>
         </header>
         <main className="flex-1 p-8">
           <Outlet />
         </main>
+        <MiPerfil abierto={perfilAbierto} onCerrar={cerrarPerfil} />
       </div>
     </div>
   );

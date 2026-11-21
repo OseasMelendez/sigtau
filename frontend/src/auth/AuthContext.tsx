@@ -19,6 +19,8 @@ interface AuthValor {
   cargando: boolean;
   login: (usuario: string, contrasena: string) => Promise<Usuario>;
   logout: () => Promise<void>;
+  /** Actualiza datos del usuario en memoria (p. ej. tras cambiar la contraseña) */
+  actualizarUsuario: (cambios: Partial<Usuario>) => void;
 }
 
 const AuthContext = createContext<AuthValor | null>(null);
@@ -53,13 +55,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return r.usuario;
   }, []);
 
+  const actualizarUsuario = useCallback((cambios: Partial<Usuario>) => {
+    setUsuario((u) => (u ? { ...u, ...cambios } : u));
+  }, []);
+
   const logout = useCallback(async () => {
     await api.post('/auth/logout').catch(() => undefined);
     setUsuario(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ usuario, cargando, login, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ usuario, cargando, login, logout, actualizarUsuario }}>{children}</AuthContext.Provider>
   );
 }
 

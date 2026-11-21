@@ -137,6 +137,8 @@ export const usuarios = {
 /** Cualquier rol: cambiar la foto propia. POST /perfil/foto */
 export const perfil = {
   subirFoto: (archivo: File) => api.subir<void>('/perfil/foto', archivo),
+  /** POST /perfil/contrasena { actual, nueva } */
+  cambiarContrasena: (actual: string, nueva: string) => api.post<void>('/perfil/contrasena', { actual, nueva }),
 };
 
 // ---------- M7 Reportes (coordinador) ----------

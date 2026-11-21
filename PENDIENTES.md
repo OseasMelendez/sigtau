@@ -17,6 +17,9 @@ las pantallas (cambio en BD → `npx prisma db pull && npx prisma generate` → 
 | 9 | ✅ **Participación por Facultad** | Inicio coordinador (99:695) | **Hecho como "Participación por Carrera"** (la BD tiene una sola facultad): `participacion_por_carrera` en `GET /reportes/metricas` |
 | 10 | **Registro de Actividad** completo + "Ver todo el historial" | Inicio coordinador (99:695) | No hay tabla de bitácora. Hoy se muestran las últimas 4 notificaciones del coordinador. Para un historial real: tabla `bitacora` (usuario, acción, fecha) + endpoint |
 
+## Agregado fuera del Figma
+- ✅ **Mi perfil** (clic en el avatar o el nombre del menú, o en el avatar de la cabecera): foto de perfil, datos de la cuenta y **cambio de contraseña** (`POST /perfil/contrasena`). Si el usuario aún tiene la contraseña inicial (`debe_cambiar_contrasena`), se abre solo una vez por sesión con un aviso (p. ej. `ru22004`). No es obligatorio: el usuario puede cerrarlo.
+
 ## Incoherencias del Figma (corregidas o por decidir)
 | Pantalla | Problema en el diseño | Qué se hizo |
 |---|---|---|

@@ -383,6 +383,21 @@ export class UsuariosController {
   }
 }
 
+// ---------- Cambio de contraseña propio (Mi perfil) ----------
+export class CambiarContrasenaDto {
+  @IsString({ message: 'Escribe tu contraseña actual' })
+  @IsNotEmpty({ message: 'Escribe tu contraseña actual' })
+  actual!: string;
+  @IsString()
+  @MinLength(8, {
+    message: 'La nueva contraseña debe tener al menos 8 caracteres',
+  })
+  @MaxLength(72, {
+    message: 'La nueva contraseña no puede superar 72 caracteres',
+  })
+  nueva!: string;
+}
+
 // ---------- Foto de perfil (Figma: avatares con foto; sin foto se muestran las iniciales) ----------
 const CARPETA_FOTOS = resolve(process.cwd(), 'uploads', 'fotos');
 const MAX_FOTO = 2 * 1024 * 1024;
@@ -429,6 +444,27 @@ export class FotosService {
     });
   }
 
+  /** Cambia la contraseña propia y quita la marca de "debe cambiar contraseña". */
+  async cambiarContrasena(idUsuario: number, d: CambiarContrasenaDto) {
+    const u = await this.prisma.usuario.findUnique({
+      where: { id_usuario: idUsuario },
+    });
+    if (!u) throw new NotFoundException('El usuario no existe.');
+    if (!(await bcrypt.compare(d.actual, u.contrasena_hash)))
+      throw new BadRequestException('La contraseña actual es incorrecta');
+    if (d.actual === d.nueva)
+      throw new BadRequestException(
+        'La nueva contraseña debe ser diferente de la actual',
+      );
+    await this.prisma.usuario.update({
+      where: { id_usuario: idUsuario },
+      data: {
+        contrasena_hash: await bcrypt.hash(d.nueva, 10),
+        debe_cambiar_contrasena: false,
+      },
+    });
+  }
+
   async leer(idUsuario: number) {
     const u = await this.prisma.usuario.findUnique({
       where: { id_usuario: idUsuario },
@@ -461,6 +497,11 @@ export class FotosController {
   @UseInterceptors(interceptorFoto)
   propia(@Usuario() u: UsuarioActual, @UploadedFile() a?: FotoSubida) {
     return this.s.guardar(u.id_usuario, a);
+  }
+  @Post('perfil/contrasena')
+  @HttpCode(204)
+  contrasena(@Usuario() u: UsuarioActual, @Body() d: CambiarContrasenaDto) {
+    return this.s.cambiarContrasena(u.id_usuario, d);
   }
   @Post('usuarios/:id/foto')
   @Roles('Coordinador')
