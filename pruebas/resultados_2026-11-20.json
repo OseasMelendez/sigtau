@@ -1,0 +1,344 @@
+{
+  "resumen": {
+    "fecha": "2026-11-21T03:25:24.507Z",
+    "api": "http://localhost:3100/api",
+    "total": 37,
+    "pasan": 37,
+    "fallan": 0
+  },
+  "resultados": [
+    {
+      "id": "CP-01",
+      "modulo": "M1 Autenticación",
+      "descripcion": "Login con contraseña incorrecta",
+      "esperado": "401 «Credenciales incorrectas»",
+      "obtenido": "401 «Credenciales incorrectas»",
+      "resultado": "PASA",
+      "ms": 1015
+    },
+    {
+      "id": "PS-01",
+      "modulo": "M1 Autenticación",
+      "descripcion": "Login correcto devuelve cookie httpOnly",
+      "esperado": "200 + cookie HttpOnly; SameSite=Strict",
+      "obtenido": "200 cookie HttpOnly; SameSite=Strict",
+      "resultado": "PASA",
+      "ms": 703
+    },
+    {
+      "id": "PS-02",
+      "modulo": "M1 Autenticación",
+      "descripcion": "Usuario desactivado no puede entrar (me22005)",
+      "esperado": "403",
+      "obtenido": "403 «Tu cuenta está desactivada. Contacta al coordinador académico.»",
+      "resultado": "PASA",
+      "ms": 20
+    },
+    {
+      "id": "PS-03",
+      "modulo": "M1 Seguridad",
+      "descripcion": "Ruta protegida sin sesión",
+      "esperado": "401",
+      "obtenido": "401 «Inicia sesión para continuar.»",
+      "resultado": "PASA",
+      "ms": 20
+    },
+    {
+      "id": "PS-04",
+      "modulo": "M1 Seguridad",
+      "descripcion": "Estudiante intenta ver solicitudes pendientes del tutor",
+      "esperado": "403",
+      "obtenido": "403 «No tienes permiso para realizar esta acción.»",
+      "resultado": "PASA",
+      "ms": 26
+    },
+    {
+      "id": "PS-05",
+      "modulo": "M1 Seguridad",
+      "descripcion": "Tutor intenta listar usuarios (solo coordinador)",
+      "esperado": "403",
+      "obtenido": "403 «No tienes permiso para realizar esta acción.»",
+      "resultado": "PASA",
+      "ms": 25
+    },
+    {
+      "id": "PS-06",
+      "modulo": "M1 Seguridad",
+      "descripcion": "Sesión única: al volver a entrar se invalida la sesión anterior",
+      "esperado": "401 con la cookie vieja",
+      "obtenido": "401 «Tu sesión expiró. Inicia sesión de nuevo.»",
+      "resultado": "PASA",
+      "ms": 715
+    },
+    {
+      "id": "PH-01",
+      "modulo": "M3 Horarios",
+      "descripcion": "Tutor registra una franja futura",
+      "esperado": "201 + franja Disponible",
+      "obtenido": "201 id=13 Disponible",
+      "resultado": "PASA",
+      "ms": 36
+    },
+    {
+      "id": "PH-02",
+      "modulo": "M3 Horarios",
+      "descripcion": "Franja que se solapa con otra del mismo tutor",
+      "esperado": "400 (restricción EXCLUDE)",
+      "obtenido": "400 «La franja se solapa con otra franja que ya registraste.»",
+      "resultado": "PASA",
+      "ms": 50
+    },
+    {
+      "id": "PH-03",
+      "modulo": "M3 Horarios",
+      "descripcion": "Hora de fin anterior a la de inicio",
+      "esperado": "400",
+      "obtenido": "400 «La hora de fin debe ser posterior a la hora de inicio.»",
+      "resultado": "PASA",
+      "ms": 22
+    },
+    {
+      "id": "PH-04",
+      "modulo": "M3 Horarios",
+      "descripcion": "Franja con fecha pasada",
+      "esperado": "400 «La fecha no puede ser anterior a hoy»",
+      "obtenido": "400 «La fecha no puede ser anterior a hoy»",
+      "resultado": "PASA",
+      "ms": 20
+    },
+    {
+      "id": "CP-02",
+      "modulo": "M2 Solicitudes",
+      "descripcion": "Enviar solicitud sin describir la dificultad",
+      "esperado": "400 «La dificultad es obligatoria»",
+      "obtenido": "400 «La dificultad es obligatoria»",
+      "resultado": "PASA",
+      "ms": 22
+    },
+    {
+      "id": "PSO-01",
+      "modulo": "M2 Solicitudes",
+      "descripcion": "Estudiante envía solicitud válida",
+      "esperado": "201 + estado Pendiente",
+      "obtenido": "201 id=10 Pendiente",
+      "resultado": "PASA",
+      "ms": 88
+    },
+    {
+      "id": "PSO-02",
+      "modulo": "M2 Solicitudes",
+      "descripcion": "El tutor recibe la notificación de la nueva solicitud",
+      "esperado": "Notificación «Nueva solicitud de tutoría»",
+      "obtenido": "200, notificación encontrada",
+      "resultado": "PASA",
+      "ms": 43
+    },
+    {
+      "id": "PSO-03",
+      "modulo": "M2 Solicitudes",
+      "descripcion": "Segunda solicitud pendiente al mismo tutor y asignatura",
+      "esperado": "400 (disparador validar_solicitud)",
+      "obtenido": "400 «Ya existe una solicitud pendiente para el mismo tutor y asignatura.»",
+      "resultado": "PASA",
+      "ms": 62
+    },
+    {
+      "id": "PSO-04",
+      "modulo": "M2 Solicitudes",
+      "descripcion": "Solicitud de una asignatura que el tutor no imparte",
+      "esperado": "400 (disparador validar_solicitud)",
+      "obtenido": "400 «El tutor de la franja no imparte la asignatura seleccionada.»",
+      "resultado": "PASA",
+      "ms": 49
+    },
+    {
+      "id": "PSO-05",
+      "modulo": "M2 Solicitudes",
+      "descripcion": "Otro tutor intenta aprobar una solicitud que no es suya",
+      "esperado": "400 o 404",
+      "obtenido": "404 «La solicitud no existe.»",
+      "resultado": "PASA",
+      "ms": 200
+    },
+    {
+      "id": "CP-03",
+      "modulo": "M2 Solicitudes",
+      "descripcion": "Aprobar sin indicar el lugar (solo se pide el lugar)",
+      "esperado": "400 «Indica el lugar de la tutoría»",
+      "obtenido": "400 «Indica el lugar de la tutoría»",
+      "resultado": "PASA",
+      "ms": 33
+    },
+    {
+      "id": "PSO-06",
+      "modulo": "M2/M4",
+      "descripcion": "Aprobar con lugar crea la tutoría y ocupa la franja",
+      "esperado": "200 + id_tutoria; franja Ocupado",
+      "obtenido": "200 tutoría=8 Programada, franja Ocupado",
+      "resultado": "PASA",
+      "ms": 373
+    },
+    {
+      "id": "PSO-07",
+      "modulo": "M2 Solicitudes",
+      "descripcion": "Otro estudiante solicita la franja ya ocupada",
+      "esperado": "400 «La franja seleccionada está ocupada.»",
+      "obtenido": "400 «La franja seleccionada está ocupada.»",
+      "resultado": "PASA",
+      "ms": 55
+    },
+    {
+      "id": "CP-05",
+      "modulo": "M5 Seguimiento",
+      "descripcion": "Registrar seguimiento de una tutoría futura",
+      "esperado": "400 (la sesión aún no ha ocurrido)",
+      "obtenido": "400 «La sesión aún no ha ocurrido (fecha 30/11/2026).»",
+      "resultado": "PASA",
+      "ms": 108
+    },
+    {
+      "id": "PT-01",
+      "modulo": "M5 Seguimiento",
+      "descripcion": "Asistió pero sin nivel de progreso",
+      "esperado": "400 «Selecciona el nivel de progreso»",
+      "obtenido": "400 «Selecciona el nivel de progreso»",
+      "resultado": "PASA",
+      "ms": 79
+    },
+    {
+      "id": "PT-02",
+      "modulo": "M5 Seguimiento",
+      "descripcion": "Seguimiento válido de una tutoría ya ocurrida (09/11) la pasa a Realizada",
+      "esperado": "204 + estado Realizada",
+      "obtenido": "204, estado Realizada",
+      "resultado": "PASA",
+      "ms": 166
+    },
+    {
+      "id": "PT-03",
+      "modulo": "M4 Tutorías",
+      "descripcion": "Intentar cancelar una tutoría ya Realizada",
+      "esperado": "400 (disparador gestionar_tutoria)",
+      "obtenido": "400 «Una tutoría realizada no se puede cancelar.»",
+      "resultado": "PASA",
+      "ms": 66
+    },
+    {
+      "id": "PT-04",
+      "modulo": "M4 Reprogramación",
+      "descripcion": "Tutor propone reprogramar y el estudiante acepta",
+      "esperado": "204/204; horario cambia, franja anterior Disponible",
+      "obtenido": "204/204, nueva franja 2026-12-01, reprogramada=true, anterior Disponible",
+      "resultado": "PASA",
+      "ms": 372
+    },
+    {
+      "id": "PT-05",
+      "modulo": "M4 Seguridad",
+      "descripcion": "Otro estudiante intenta ver una tutoría ajena",
+      "esperado": "404",
+      "obtenido": "404 «La tutoría no existe.»",
+      "resultado": "PASA",
+      "ms": 49
+    },
+    {
+      "id": "CP-04",
+      "modulo": "M4 Tutorías",
+      "descripcion": "Cancelar sin motivo",
+      "esperado": "400 «Indica el motivo para continuar»",
+      "obtenido": "400 «Indica el motivo para continuar»",
+      "resultado": "PASA",
+      "ms": 20
+    },
+    {
+      "id": "PT-06",
+      "modulo": "M4 Tutorías",
+      "descripcion": "Cancelar con motivo libera la franja",
+      "esperado": "204 + Cancelada; franja Disponible",
+      "obtenido": "204, Cancelada, franja Disponible",
+      "resultado": "PASA",
+      "ms": 143
+    },
+    {
+      "id": "PH-05",
+      "modulo": "M3 Horarios",
+      "descripcion": "Eliminar una franja que tiene una tutoría asociada",
+      "esperado": "400",
+      "obtenido": "400 «No se puede eliminar una franja que tiene solicitudes o tutorías asociadas»",
+      "resultado": "PASA",
+      "ms": 41
+    },
+    {
+      "id": "PU-01",
+      "modulo": "M8 Usuarios",
+      "descripcion": "Registrar usuario con un correo que ya existe",
+      "esperado": "409",
+      "obtenido": "409 «Ya existe un registro con ese valor.»",
+      "resultado": "PASA",
+      "ms": 377
+    },
+    {
+      "id": "PU-02",
+      "modulo": "M8 Usuarios",
+      "descripcion": "Desactivar usuario impide su login (y se reactiva)",
+      "esperado": "204; login 403; 204",
+      "obtenido": "204; login 403; 204",
+      "resultado": "PASA",
+      "ms": 84
+    },
+    {
+      "id": "PU-03",
+      "modulo": "M8 Perfil",
+      "descripcion": "Cambiar contraseña con la actual incorrecta",
+      "esperado": "400 «La contraseña actual es incorrecta»",
+      "obtenido": "400 «La contraseña actual es incorrecta»",
+      "resultado": "PASA",
+      "ms": 423
+    },
+    {
+      "id": "PU-04",
+      "modulo": "M2 Documento",
+      "descripcion": "Adjuntar un archivo .txt como documento de apoyo",
+      "esperado": "400 (solo PDF, Word o imagen)",
+      "obtenido": "400 «Solo se permiten archivos PDF, Word o imágenes (PNG, JPG)»",
+      "resultado": "PASA",
+      "ms": 71
+    },
+    {
+      "id": "PR-01",
+      "modulo": "M7 Reportes",
+      "descripcion": "Métricas del coordinador",
+      "esperado": "200 con totales",
+      "obtenido": "200 usuarios=11, asistencia=75%",
+      "resultado": "PASA",
+      "ms": 260
+    },
+    {
+      "id": "PR-02",
+      "modulo": "M7 Reportes",
+      "descripcion": "Vista previa del reporte «Asistencia estudiantil»",
+      "esperado": "200 con columnas y filas",
+      "obtenido": "200 6 columnas, 3 filas",
+      "resultado": "PASA",
+      "ms": 105
+    },
+    {
+      "id": "PR-03",
+      "modulo": "M7 Reportes",
+      "descripcion": "Exportar reporte a PDF",
+      "esperado": "200 application/pdf",
+      "obtenido": "200 application/pdf",
+      "resultado": "PASA",
+      "ms": 398
+    },
+    {
+      "id": "PR-04",
+      "modulo": "M7 Seguridad",
+      "descripcion": "Estudiante intenta ver métricas",
+      "esperado": "403",
+      "obtenido": "403 «No tienes permiso para realizar esta acción.»",
+      "resultado": "PASA",
+      "ms": 29
+    }
+  ]
+}
