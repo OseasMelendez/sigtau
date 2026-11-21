@@ -48,8 +48,8 @@ model usuario {
   intentos_fallidos       Int            @default(0) @db.SmallInt
   bloqueado_hasta         DateTime?      @db.Timestamp(6)
   ultimo_acceso           DateTime?      @db.Timestamp(6)
-  fecha_registro          DateTime       @default(now()) @db.Timestamp(6)
   foto                    String?        @db.VarChar(255)
+  fecha_registro          DateTime       @default(now()) @db.Timestamp(6)
   estudiante              estudiante?
   notificacion            notificacion[]
   reporte                 reporte[]
@@ -202,4 +202,11 @@ model reporte {
   asignatura       asignatura? @relation(fields: [id_asignatura], references: [id_asignatura], onDelete: NoAction, onUpdate: NoAction)
   coordinador      usuario     @relation(fields: [id_coordinador], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
   tutor            tutor?      @relation(fields: [id_tutor], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model archivo {
+  nombre       String   @id @db.VarChar(255)
+  tipo         String   @db.VarChar(100)
+  contenido    Bytes
+  fecha_subida DateTime @default(now()) @db.Timestamp(6)
 }

@@ -232,6 +232,16 @@ CREATE TABLE reporte (
   CHECK (fecha_hasta >= fecha_desde)
 );
 
+-- Contenido de los archivos subidos (fotos de perfil y documentos de apoyo). usuario.foto y
+-- solicitud_tutoria.documento_apoyo guardan el nombre; aquí van los bytes, para que no dependan
+-- del disco del servidor (en Render gratis el disco se borra en cada reinicio).
+CREATE TABLE archivo (
+  nombre      VARCHAR(255) PRIMARY KEY,                -- p. ej. usuario-3.png, solicitud-4.pdf
+  tipo        VARCHAR(100) NOT NULL,                   -- tipo MIME
+  contenido   BYTEA        NOT NULL,
+  fecha_subida TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Índices de apoyo para las consultas más frecuentes
 CREATE INDEX idx_solicitud_estudiante ON solicitud_tutoria (id_estudiante);
 CREATE INDEX idx_solicitud_horario    ON solicitud_tutoria (id_horario);

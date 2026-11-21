@@ -57,10 +57,9 @@ Contraseña para todos: `Sigtau2026!`
 Cada usuario cambia su foto y su contraseña con clic en su avatar o nombre del menú lateral.
 
 ## Archivos subidos
-Las fotos de perfil y los documentos de apoyo de las solicitudes se guardan en
-`backend/uploads/`. Esa carpeta **no está en git** y no se borra al reiniciar la base de datos
-(solo se pierde la referencia): en otra computadora los usuarios aparecen con sus iniciales
-hasta que se suban fotos de nuevo.
+Las fotos de perfil y los documentos de apoyo de las solicitudes se guardan **en la base de datos**
+(tabla `archivo`), así que no dependen del disco del servidor. Al reiniciar la base de datos con el
+script se borran junto con los demás datos de prueba.
 
 ## Estructura
 ```

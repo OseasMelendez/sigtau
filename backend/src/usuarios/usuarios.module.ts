@@ -17,14 +17,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  createReadStream,
-  existsSync,
-  mkdirSync,
-  unlinkSync,
-  writeFileSync,
-} from 'fs';
-import { extname, join, resolve } from 'path';
+import { extname } from 'path';
 import { Type, Transform } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -399,7 +392,7 @@ export class CambiarContrasenaDto {
 }
 
 // ---------- Foto de perfil (Figma: avatares con foto; sin foto se muestran las iniciales) ----------
-const CARPETA_FOTOS = resolve(process.cwd(), 'uploads', 'fotos');
+// Los bytes se guardan en la tabla "archivo" (no en disco: en Render gratis se borra al reiniciar)
 const MAX_FOTO = 2 * 1024 * 1024;
 const TIPOS_FOTO: Record<string, string> = {
   '.png': 'image/png',
@@ -430,17 +423,28 @@ export class FotosService {
       where: { id_usuario: idUsuario },
     });
     if (!u) throw new NotFoundException('El usuario no existe.');
-    mkdirSync(CARPETA_FOTOS, { recursive: true });
-    // Si cambia la extensión, se borra la foto anterior
-    if (u.foto && u.foto !== `usuario-${idUsuario}${ext}`) {
-      const vieja = join(CARPETA_FOTOS, u.foto);
-      if (existsSync(vieja)) unlinkSync(vieja);
-    }
     const nombre = `usuario-${idUsuario}${ext}`;
-    writeFileSync(join(CARPETA_FOTOS, nombre), a.buffer);
-    await this.prisma.usuario.update({
-      where: { id_usuario: idUsuario },
-      data: { foto: nombre },
+    await this.prisma.$transaction(async (tx) => {
+      // Si cambia la extensión, se borra la foto anterior
+      if (u.foto && u.foto !== nombre)
+        await tx.archivo.deleteMany({ where: { nombre: u.foto } });
+      await tx.archivo.upsert({
+        where: { nombre },
+        create: {
+          nombre,
+          tipo: TIPOS_FOTO[ext],
+          contenido: new Uint8Array(a.buffer),
+        },
+        update: {
+          tipo: TIPOS_FOTO[ext],
+          contenido: new Uint8Array(a.buffer),
+          fecha_subida: ahora(),
+        },
+      });
+      await tx.usuario.update({
+        where: { id_usuario: idUsuario },
+        data: { foto: nombre },
+      });
     });
   }
 
@@ -470,13 +474,11 @@ export class FotosService {
       where: { id_usuario: idUsuario },
       select: { foto: true },
     });
-    const ruta = u?.foto ? join(CARPETA_FOTOS, u.foto) : '';
-    if (!ruta || !existsSync(ruta))
-      throw new NotFoundException('El usuario no tiene foto.');
-    return new StreamableFile(createReadStream(ruta), {
-      type:
-        TIPOS_FOTO[extname(ruta).toLowerCase()] ?? 'application/octet-stream',
-    });
+    const arch = u?.foto
+      ? await this.prisma.archivo.findUnique({ where: { nombre: u.foto } })
+      : null;
+    if (!arch) throw new NotFoundException('El usuario no tiene foto.');
+    return new StreamableFile(Buffer.from(arch.contenido), { type: arch.tipo });
   }
 }
 

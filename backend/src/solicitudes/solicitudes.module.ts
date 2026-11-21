@@ -14,8 +14,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createReadStream, existsSync, mkdirSync, writeFileSync } from 'fs';
-import { extname, join, resolve } from 'path';
+import { extname } from 'path';
 import {
   IsInt,
   IsNotEmpty,
@@ -41,7 +40,7 @@ const recortar = ({ value }: { value: unknown }) =>
 
 // ---------- Documento de apoyo (opcional): PDF, Word o imagen, máx. 5 MB ----------
 /** Carpeta donde se guardan los archivos (backend/uploads/solicitudes, fuera de git) */
-const CARPETA_DOCS = resolve(process.cwd(), 'uploads', 'solicitudes');
+// Los bytes se guardan en la tabla "archivo" (no en disco: en Render gratis se borra al reiniciar)
 const MAX_DOC = 5 * 1024 * 1024;
 const TIPOS_DOC: Record<string, string> = {
   '.pdf': 'application/pdf',
@@ -120,12 +119,27 @@ export class SolicitudesService {
       throw new BadRequestException(
         'Solo se adjuntan documentos a solicitudes pendientes',
       );
-    mkdirSync(CARPETA_DOCS, { recursive: true });
     const nombre = `solicitud-${idSolicitud}${ext}`;
-    writeFileSync(join(CARPETA_DOCS, nombre), a.buffer);
-    await this.prisma.solicitud_tutoria.update({
-      where: { id_solicitud: idSolicitud },
-      data: { documento_apoyo: nombre },
+    await this.prisma.$transaction(async (tx) => {
+      if (s.documento_apoyo && s.documento_apoyo !== nombre)
+        await tx.archivo.deleteMany({ where: { nombre: s.documento_apoyo } });
+      await tx.archivo.upsert({
+        where: { nombre },
+        create: {
+          nombre,
+          tipo: TIPOS_DOC[ext],
+          contenido: new Uint8Array(a.buffer),
+        },
+        update: {
+          tipo: TIPOS_DOC[ext],
+          contenido: new Uint8Array(a.buffer),
+          fecha_subida: ahora(),
+        },
+      });
+      await tx.solicitud_tutoria.update({
+        where: { id_solicitud: idSolicitud },
+        data: { documento_apoyo: nombre },
+      });
     });
   }
 
@@ -141,12 +155,16 @@ export class SolicitudesService {
         (u.rol === 'Estudiante' && s.id_estudiante === u.id_usuario) ||
         (u.rol === 'Tutor' && s.horario_tutor.id_tutor === u.id_usuario));
     if (!puede) throw new NotFoundException('La solicitud no existe.');
-    const ruta = s.documento_apoyo ? join(CARPETA_DOCS, s.documento_apoyo) : '';
-    if (!ruta || !existsSync(ruta))
+    const arch = s.documento_apoyo
+      ? await this.prisma.archivo.findUnique({
+          where: { nombre: s.documento_apoyo },
+        })
+      : null;
+    if (!arch)
       throw new NotFoundException('La solicitud no tiene documento de apoyo.');
-    const ext = extname(ruta).toLowerCase();
-    return new StreamableFile(createReadStream(ruta), {
-      type: TIPOS_DOC[ext] ?? 'application/octet-stream',
+    const ext = extname(arch.nombre).toLowerCase();
+    return new StreamableFile(Buffer.from(arch.contenido), {
+      type: arch.tipo,
       disposition: `inline; filename="documento-solicitud-${idSolicitud}${ext}"`,
     });
   }

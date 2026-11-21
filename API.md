@@ -75,7 +75,7 @@ archivo común (p. ej. `src/common/mapeos.ts`) y reutilizarlas en todos los serv
 - Se sube **después** de crear la solicitud (`POST /solicitudes` sigue siendo JSON). Solo solicitudes
   propias y Pendientes. PDF, DOC/DOCX, PNG o JPG, máx. 5 MB («Solo se permiten archivos PDF, Word o
   imágenes (PNG, JPG)», «El documento no puede superar 5 MB»).
-- Se guarda en `backend/uploads/solicitudes/solicitud-<id>.<ext>` (fuera de git) y el nombre en
+- El contenido se guarda en la tabla `archivo` (nombre `solicitud-<id>.<ext>`) y el nombre en
   `solicitud_tutoria.documento_apoyo`. `SolicitudEstudiante`, `SolicitudTutor` y `Tutoria`
   traen `tiene_documento: boolean`.
 
@@ -147,8 +147,8 @@ Opcional (RF-10, si da tiempo): `@nestjs/schedule` con un `@Cron` cada hora que 
 | POST | `/usuarios/:id/foto` | Coordinador | multipart, campo `archivo` | 204 |
 | POST | `/perfil/contrasena` | Cualquiera (la propia) | `{ actual, nueva }` | 204 |
 
-- Foto: PNG, JPG o WEBP, máx. 2 MB, en `backend/uploads/fotos/usuario-<id>.<ext>`; el nombre va en
-  `usuario.foto`.
+- Foto: PNG, JPG o WEBP, máx. 2 MB. El contenido va en la tabla `archivo` (nombre
+  `usuario-<id>.<ext>`) y el nombre en `usuario.foto`.
 - Contraseña: `actual` debe coincidir («La contraseña actual es incorrecta»); `nueva` mín. 8 y distinta
   de la actual. Pone `debe_cambiar_contrasena = false`.
 
