@@ -44,22 +44,24 @@ export function ModalReprogramacion({
   return (
     <Modal abierto titulo={accion === 'aceptar' ? 'Confirmar Reprogramación' : 'Rechazar Reprogramación'}
       icono={<CalendarClock size={20} className="text-amber-500" />} onCerrar={onCerrar} ancho="max-w-md"
-      pie={<>
-        <Boton variante="secundario" onClick={onCerrar}>Cancelar</Boton>
-        <Boton variante={accion === 'aceptar' ? 'primario' : 'peligro'} cargando={enviando} onClick={confirmar}>
+      pie={<div className="flex w-full gap-3">
+        {/* Figma 87:1932: Confirmar a la izquierda, ambos del mismo ancho */}
+        <Boton variante={accion === 'aceptar' ? 'primario' : 'peligro'} cargando={enviando} onClick={confirmar}
+          className={`flex-1 !rounded-md font-medium ${accion === 'aceptar' ? '!bg-primario-oscuro hover:!bg-primario' : ''}`}>
           {accion === 'aceptar' ? 'Confirmar' : 'Rechazar propuesta'}
         </Boton>
-      </>}>
-      <div className="rounded-xl bg-fondo p-4 text-sm">
-        <p className="flex justify-between"><span className="text-texto-suave">Asignatura:</span> <b>{asignatura}</b></p>
-        <p className="mt-2 flex justify-between"><span className="text-texto-suave">Tutor:</span> <b>{tutor}</b></p>
+        <Boton variante="secundario" onClick={onCerrar} className="flex-1 !rounded-md font-medium !text-texto-suave">Cancelar</Boton>
+      </div>}>
+      <div className="rounded-lg bg-fondo-tutor p-4 text-[13px]">
+        <p className="flex justify-between gap-4"><span className="text-texto-suave">Asignatura:</span> <b className="font-semibold">{asignatura}</b></p>
+        <p className="mt-2 flex justify-between gap-4"><span className="text-texto-suave">Tutor:</span> <b className="font-semibold">{tutor}</b></p>
         <p className="mt-2 flex justify-between gap-4"><span className="text-texto-suave">Motivo:</span> <span className="text-right">{reprogramacion.motivo}</span></p>
         <div className="mt-3 border-t border-borde pt-3">
           <p className="text-texto-suave">Nueva fecha propuesta:</p>
-          <p className="font-semibold text-primario-oscuro">{textoFranja(reprogramacion.franja_propuesta)}</p>
+          <p className="mt-0.5 font-semibold text-primario-oscuro">{textoFranja(reprogramacion.franja_propuesta)}</p>
         </div>
       </div>
-      <p className="mt-4 text-sm">
+      <p className="mt-4 text-[13px] text-texto-suave">
         {accion === 'aceptar'
           ? '¿Estás de acuerdo con la nueva fecha y hora propuesta por el tutor?'
           : '¿Rechazar la propuesta? La tutoría se mantendrá en su horario original.'}

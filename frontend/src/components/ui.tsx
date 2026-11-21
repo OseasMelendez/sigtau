@@ -107,10 +107,12 @@ export function Alerta({ tipo = 'error', children }: { tipo?: 'error' | 'exito' 
 
 // ---------- Modal ----------
 export function Modal({
-  abierto, titulo, icono, onCerrar, children, pie, ancho = 'max-w-lg',
+  abierto, titulo, icono, onCerrar, children, pie, ancho = 'max-w-lg', claseCabecera = '',
 }: {
   abierto: boolean; titulo: string; icono?: ReactNode; onCerrar: () => void;
   children: ReactNode; pie?: ReactNode; ancho?: string;
+  /** Clases extra para la cabecera (p. ej. fondo lila y título morado del modal Aprobar) */
+  claseCabecera?: string;
 }) {
   useEffect(() => {
     if (!abierto) return;
@@ -125,7 +127,7 @@ export function Modal({
       <div role="dialog" aria-modal="true" aria-label={titulo}
         className={`flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-xl ${ancho}`}
         onMouseDown={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-2 border-b border-borde px-6 py-4">
+        <div className={`flex items-center gap-2 border-b border-borde px-6 py-4 ${claseCabecera}`}>
           {icono}
           <h2 className="flex-1 text-xl font-semibold">{titulo}</h2>
           <button onClick={onCerrar} className="rounded p-1 text-texto-suave hover:bg-fondo" aria-label="Cerrar"><X size={20} /></button>

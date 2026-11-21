@@ -28,7 +28,7 @@ const MENU: Record<Rol, { subtitulo: string; boton?: ItemMenu; items: ItemMenu[]
     ],
   },
   Coordinador: {
-    subtitulo: 'Portal Administrador',
+    subtitulo: 'Portal Coordinador',
     items: [
       { a: '/coordinador', texto: 'Inicio / Métricas', icono: House, exacto: true },
       { a: '/coordinador/usuarios', texto: 'Gestión de Usuarios', icono: Users },
