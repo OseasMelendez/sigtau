@@ -65,6 +65,20 @@ archivo común (p. ej. `src/common/mapeos.ts`) y reutilizarlas en todos los serv
   (si no, 400 «La solicitud ya fue respondida»).
 - **Rechazar:** `estado 'Rechazada'`, `fecha_respuesta: ahora()`, `motivo_rechazo` opcional (máx. 255).
 
+### Documento de apoyo (opcional)
+
+| Método | Ruta | Rol | Body | Respuesta |
+|---|---|---|---|---|
+| POST | `/solicitudes/:id/documento` | Estudiante | multipart, campo `archivo` | 204 |
+| GET | `/solicitudes/:id/documento` | Estudiante dueño, tutor de la franja o coordinador | | **Archivo** (inline) |
+
+- Se sube **después** de crear la solicitud (`POST /solicitudes` sigue siendo JSON). Solo solicitudes
+  propias y Pendientes. PDF, DOC/DOCX, PNG o JPG, máx. 5 MB («Solo se permiten archivos PDF, Word o
+  imágenes (PNG, JPG)», «El documento no puede superar 5 MB»).
+- Se guarda en `backend/uploads/solicitudes/solicitud-<id>.<ext>` (fuera de git) y el nombre en
+  `solicitud_tutoria.documento_apoyo`. `SolicitudEstudiante`, `SolicitudTutor` y `Tutoria`
+  traen `tiene_documento: boolean`.
+
 ## M4 / M5 Tutorías y seguimiento — `TutoriasModule`
 
 | Método | Ruta | Rol | Body | Respuesta |
@@ -88,6 +102,7 @@ archivo común (p. ej. `src/common/mapeos.ts`) y reutilizarlas en todos los serv
 - **Aceptar reprogramación:** `estado 'Aceptada'`, `fecha_respuesta: ahora()`. El disparador cambia el
   horario de la tutoría (libera la franja anterior y ocupa la nueva). Solo el estudiante de esa tutoría.
 - **Rechazar reprogramación:** `estado 'Rechazada'`, `fecha_respuesta: ahora()`.
+- `Tutoria.reprogramada` = `true` si tiene alguna reprogramación Aceptada (etiqueta «Reprogramada»).
 
 ## M6 Notificaciones — `NotificacionesModule` (cualquier rol)
 
@@ -119,6 +134,23 @@ Opcional (RF-10, si da tiempo): `@nestjs/schedule` con un `@Cron` cada hora que 
   `deleteMany` + `createMany` en `tutor_asignatura`.
 - Activo: un coordinador no puede desactivarse a sí mismo (400). Al desactivar, cerrar sus
   sesiones abiertas (`fecha_cierre: ahora()`).
+- Tutor: además `titulo` (opcional, máx. 20, p. ej. «Ing.») y `departamento` (opcional, máx. 100).
+  Se devuelven también en `TutorResumen`, `TutorDetalle`, `Tutoria.tutor` y
+  `SolicitudEstudiante.tutor` (solo `titulo`). `Asignatura` trae `area` (p. ej. «Matemáticas»).
+
+### Foto de perfil y Mi perfil (`FotosController`, cualquier rol salvo donde se indica)
+
+| Método | Ruta | Rol | Body | Respuesta |
+|---|---|---|---|---|
+| GET | `/usuarios/:id/foto` | Cualquiera con sesión | | **Imagen**, o 404 si no tiene |
+| POST | `/perfil/foto` | Cualquiera (la propia) | multipart, campo `archivo` | 204 |
+| POST | `/usuarios/:id/foto` | Coordinador | multipart, campo `archivo` | 204 |
+| POST | `/perfil/contrasena` | Cualquiera (la propia) | `{ actual, nueva }` | 204 |
+
+- Foto: PNG, JPG o WEBP, máx. 2 MB, en `backend/uploads/fotos/usuario-<id>.<ext>`; el nombre va en
+  `usuario.foto`.
+- Contraseña: `actual` debe coincidir («La contraseña actual es incorrecta»); `nueva` mín. 8 y distinta
+  de la actual. Pone `debe_cambiar_contrasena = false`.
 
 ## M7 Reportes — `ReportesModule` (`@Roles('Coordinador')`)
 
@@ -132,7 +164,8 @@ Opcional (RF-10, si da tiempo): `@nestjs/schedule` con un `@Cron` cada hora que 
 
 - `Metricas`: `sesiones_activas` = sesiones sin `fecha_cierre` y no expiradas; `tasa_asistencia` =
   % de seguimientos con `asistio = true` (entero, 0 si no hay); `demanda_por_asignatura` = número de
-  solicitudes por asignatura, de mayor a menor.
+  solicitudes por asignatura, de mayor a menor; `participacion_por_carrera` = solicitudes por carrera del
+  estudiante, de mayor a menor (la BD tiene una sola facultad).
 - Filtros: las tutorías se filtran por `horario_tutor.fecha` entre `fecha_desde` y `fecha_hasta`, y
   opcionalmente por tutor, asignatura y estado. Columnas sugeridas por tipo:
   - **Tutorías realizadas:** Fecha, Hora, Estudiante, Tutor, Asignatura, Lugar, Estado

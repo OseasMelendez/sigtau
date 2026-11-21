@@ -9,6 +9,8 @@ demo (conexión a BD, CRUD, validaciones, control de acceso por rol). Todo en es
 - `frontend/`: React 19 + TypeScript + Vite + React Router + Tailwind v4 + lucide-react
 - `backend/`: NestJS 11 + Prisma 6 (adaptador `@prisma/adapter-pg`, `engineType = "client"`)
 - `database/SIGTAU_BD.sql`: PostgreSQL 16/17, esquema `sigtau`, 15 tablas, 5 disparadores, datos de prueba
+  (incluye las columnas agregadas al ajustar el Figma: `tutor.titulo`, `tutor.departamento`,
+  `asignatura.area`, `usuario.foto`)
 
 ## Comandos
 ```
@@ -46,6 +48,8 @@ También se puede entrar con el correo, p. ej. `ga22001@ues.edu.sv`.
    - CP-04 cancelar sin motivo: botón Confirmar deshabilitado + «Indica el motivo para continuar»
    - CP-05 seguimiento de tutoría futura: botón deshabilitado + «Solo se puede registrar seguimiento de tutorías ya realizadas»
    - CP-03: el modal Aprobar muestra el horario en solo lectura, pide solo el lugar, sin modalidad ni enlace virtual.
+9. **Archivos subidos** (documento de apoyo y fotos de perfil) van en `backend/uploads/`, que está en
+   `.gitignore`: no viajan con el repo ni se borran al reiniciar la BD (solo se pierde la referencia).
 
 ## Reglas en la BD (disparadores y restricciones)
 - `validar_solicitud` (INSERT solicitud): franja no Ocupada; el tutor de la franja imparte la
@@ -76,13 +80,29 @@ BD real: los 3 roles, los 8 módulos y los casos CP-01 a CP-05.
 
 - Backend: un archivo por módulo en `backend/src/<modulo>/<modulo>.module.ts` (DTO + servicio +
   controlador). Mapeos comunes y `notificar()` en `src/common/mapeos.ts`. Contrato en `API.md`.
-- Pendiente opcional: recordatorios automáticos 24 h antes (`@nestjs/schedule`), cambio de
-  contraseña obligatorio en el primer inicio de sesión, documento de apoyo en la solicitud,
-  pruebas Jest/Supertest.
+- **Frontend ajustado al Figma** (20/11/2026), pantalla por pantalla. `PENDIENTES.md` registra lo que
+  el Figma mostraba y la BD no tenía (hecho o descartado) y las incoherencias del diseño.
+- Agregado al ajustar el Figma: título/departamento del tutor y área de la asignatura, estado
+  «Reprogramada», participación por carrera, **documento de apoyo** en la solicitud, **foto de
+  perfil** y ventana **Mi perfil** (foto, datos y cambio de contraseña; se abre sola una vez por
+  sesión si `debe_cambiar_contrasena`, sin obligar).
+- Descartado: modalidad virtual / enlace (CP-03), bitácora completa, buscador de la cabecera y
+  «Ver todos» de Nueva Solicitud.
+- Pendiente opcional: recordatorios automáticos 24 h antes (`@nestjs/schedule`), obligar el cambio
+  de contraseña en el primer inicio de sesión, pruebas Jest/Supertest.
 
 ## Frontend (referencia)
 - Componentes base en `src/components/ui.tsx` (Boton, Badge, Tarjeta, Modal, Campo, Alerta, Vacio…),
   avisos con `useToast()`, carga de datos con `useCarga()` de `src/lib/hooks.ts`.
+  `Modal` acepta `claseCabecera` (cabecera lila con título morado, como en el Figma). Color `bg-campo`
+  para inputs rellenos (con `!` porque `claseInput` ya trae `bg-white`).
+- Avatares: `<Iniciales id={...} nombre={...} />` de `components/Layout.tsx` muestra la foto de perfil
+  y, si no hay, las iniciales. Tras subir una foto llamar a `refrescarFotos()`. Nombre del tutor con
+  título: `nombreTutor()` de `src/lib/nombres.ts`.
+- Calendarios: `components/SemanaFranjas.tsx` tiene tres vistas: bloques (por defecto), `cuadricula`
+  (Detalle del Tutor) y `cuadricula aspecto="calendario"` (Programación y Gestionar Horarios, con
+  `renderContenido` y `onElegirHueco`).
+- `components/MiPerfil.tsx`: ventana Mi perfil (clic en el avatar o el nombre del menú lateral).
 - Pantallas: `src/pages/estudiante/`, `src/pages/tutor/`, `src/pages/coordinador/`,
   `src/pages/DetalleTutoriaPage.tsx` (compartida), panel de notificaciones en `components/`.
 - El diseño de *Detalles de Sesión* del Figma mostraba "modalidad virtual / enlace"; se reemplazó
@@ -94,7 +114,7 @@ BD real: los 3 roles, los 8 módulos y los casos CP-01 a CP-05.
 Archivo `QnIABtYNHVoNFVokbCm55Q` ("SIGTAU-ADS"). Usar el MCP de Figma (`get_screenshot` /
 `get_design_context`) con estos nodos. Colores ya definidos como tokens en `frontend/src/index.css`
 (`bg-primario`, `text-primario-oscuro`, `bg-primario-suave`, `border-borde`, `bg-login`...).
-Fotos de los diseños → usar `<Iniciales />` de `components/Layout.tsx`.
+- Fotos de los diseños → `<Iniciales id nombre />` (muestra la foto de perfil si el usuario subió una).
 
 | Rol | Pantalla | Nodo |
 |---|---|---|
