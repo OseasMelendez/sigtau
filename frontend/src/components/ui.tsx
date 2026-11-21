@@ -40,6 +40,7 @@ const COLORES_ESTADO: Record<string, string> = {
   Realizada: 'bg-exito-suave text-exito border-green-200',
   Cancelada: 'bg-peligro-suave text-peligro border-red-200',
   'Reprogramación pendiente': 'bg-amber-50 text-amber-700 border-amber-200',
+  Reprogramada: 'bg-lime-50 text-lime-800 border-lime-200',
   Disponible: 'bg-primario-suave text-primario-oscuro border-violet-200',
   Ocupado: 'bg-slate-100 text-slate-600 border-slate-200',
   Activo: 'bg-exito-suave text-exito border-green-200',

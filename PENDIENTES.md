@@ -12,9 +12,9 @@ las pantallas (cambio en BD → `npx prisma db pull && npx prisma generate` → 
 | 4 | **Enlace "Ver todos"** junto a "Seleccionar Tutor Disponible" | Nueva Solicitud (1:179) | No es de BD: definir qué muestra (¿tutores de todas las asignaturas?). Hoy ya se listan todos los tutores de la asignatura elegida |
 | 5 | **Buscador "Buscar…" en la cabecera** | Tutorías Dashboard / Mis Solicitudes (8:2), Modal Reprogramación (87:1932) | No es de BD: definir qué busca (¿solicitudes por asignatura o tutor?) y agregarlo en `Layout.tsx` |
 | 6 | **Área de la asignatura** (etiqueta "Matemáticas" junto al horario) | Historial (3:333) | `asignatura` solo tiene código y nombre: agregar un área/departamento (columna o tabla) y devolverlo en `Asignatura` |
-| 7 | **Departamento del tutor** ("Dpto. Matemáticas Aplicadas") | Historial (3:333) | Hoy se muestra `especialidad`. Si se quiere el departamento real, columna en `tutor` |
-| 8 | **Estado "Reprogramada"** en la lista de sesiones | Historial (3:333) | La tutoría no guarda ese estado (Programada/Realizada/Cancelada); se podría derivar de `reprogramacion` Aceptada sin tocar la BD |
-| 9 | **Participación por Facultad** (porcentaje por facultad) | Inicio coordinador (99:695) | No requiere cambiar la BD (estudiante → carrera → facultad), pero sí agregar ese cálculo en `GET /reportes/metricas` del backend. Hoy se muestra "Demanda por Asignatura" con porcentajes |
+| 7 | **Departamento del tutor** ("Dpto. Matemáticas Aplicadas") | Historial (3:333) | La BD tiene una sola facultad, así que mostrar la facultad no aporta. Se hará con una columna `departamento` en `tutor`, junto con el título (#1) |
+| 8 | ✅ **Estado "Reprogramada"** | Historial (3:333) | **Hecho:** `Tutoria.reprogramada` (hay una reprogramación Aceptada) y etiqueta en el Historial |
+| 9 | ✅ **Participación por Facultad** | Inicio coordinador (99:695) | **Hecho como "Participación por Carrera"** (la BD tiene una sola facultad): `participacion_por_carrera` en `GET /reportes/metricas` |
 | 10 | **Registro de Actividad** completo + "Ver todo el historial" | Inicio coordinador (99:695) | No hay tabla de bitácora. Hoy se muestran las últimas 4 notificaciones del coordinador. Para un historial real: tabla `bitacora` (usuario, acción, fecha) + endpoint |
 
 ## Incoherencias del Figma (corregidas o por decidir)

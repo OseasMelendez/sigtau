@@ -82,6 +82,7 @@ export class ReportesService {
       seguimientos,
       demanda,
       asignaturas,
+      solicitudesCarrera,
     ] = await Promise.all([
       this.prisma.usuario.findMany({ select: { rol: true, activo: true } }),
       this.prisma.sesion.count({
@@ -95,7 +96,16 @@ export class ReportesService {
         _count: true,
       }),
       this.prisma.asignatura.findMany(),
+      // Participación por carrera (Figma "Participación por Facultad"; la BD tiene una sola facultad)
+      this.prisma.solicitud_tutoria.findMany({
+        select: { estudiante: { select: { carrera: { select: { nombre: true } } } } },
+      }),
     ]);
+    const porCarrera = new Map<string, number>();
+    solicitudesCarrera.forEach((s) => {
+      const c = s.estudiante.carrera.nombre;
+      porCarrera.set(c, (porCarrera.get(c) ?? 0) + 1);
+    });
     const porRol = { Estudiante: 0, Tutor: 0, Coordinador: 0 } as Record<
       string,
       number
@@ -120,6 +130,9 @@ export class ReportesService {
               ?.nombre ?? '—',
           total: d._count,
         }))
+        .sort((a, b) => b.total - a.total),
+      participacion_por_carrera: [...porCarrera.entries()]
+        .map(([carrera, total]) => ({ carrera, total }))
         .sort((a, b) => b.total - a.total),
       tasa_asistencia: pct(
         seguimientos.filter((s) => s.asistio).length,

@@ -78,6 +78,8 @@ export interface Tutoria {
   fecha_cancelacion: string | null;
   seguimiento: Seguimiento | null;
   reprogramacion_pendiente: Reprogramacion | null;
+  /** true si se aceptó alguna reprogramación (se muestra "Reprogramada") */
+  reprogramada: boolean;
 }
 
 /** Solicitud vista por el estudiante (Mis Solicitudes) */
@@ -154,6 +156,8 @@ export interface Metricas {
   solicitudes_pendientes: number;
   tutorias_por_estado: Record<EstadoTutoria, number>;
   demanda_por_asignatura: { asignatura: string; total: number }[];
+  /** Solicitudes por carrera del estudiante (Figma "Participación por Facultad") */
+  participacion_por_carrera: { carrera: string; total: number }[];
   tasa_asistencia: number; // 0 a 100
 }
 

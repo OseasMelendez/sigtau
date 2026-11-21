@@ -75,7 +75,7 @@ export function HistorialPage() {
                   className={`rounded-lg border p-3 text-left transition-colors ${t.id_tutoria === sel?.id_tutoria
                     ? 'border-primario/40 border-l-4 border-l-primario bg-primario-suave' : 'border-borde hover:bg-fondo'}`}>
                   <div className="flex items-center justify-between">
-                    <Badge estado={t.estado} className="!px-2 !py-0 !text-[10px]" />
+                    <span className="flex gap-1"><Badge estado={t.estado} className="!px-2 !py-0 !text-[10px]" />{t.reprogramada && <Badge estado="Reprogramada" className="!px-2 !py-0 !text-[10px]" />}</span>
                     <span className="flex items-center gap-1 text-[10px] text-texto-suave"><CalendarDays size={11} /> {fechaLista(t.franja.fecha)}</span>
                   </div>
                   <p className="mt-2 text-[15px] font-medium">{t.asignatura.nombre}</p>
@@ -96,6 +96,7 @@ export function HistorialPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-3 text-texto-suave">
                       <Badge estado={sel.estado} className="!px-2 !py-0 !text-[10px]" />
+                      {sel.reprogramada && <Badge estado="Reprogramada" className="!px-2 !py-0 !text-[10px]" />}
                       <span className="flex items-center gap-1 text-[11px]"><Clock size={12} /> {sel.franja.hora_inicio} – {sel.franja.hora_fin} ({duracion(sel.franja.hora_inicio, sel.franja.hora_fin)})</span>
                     </div>
                     <Boton variante="secundario" className="!px-3 !py-1.5 text-xs font-medium print:hidden" onClick={() => window.print()}

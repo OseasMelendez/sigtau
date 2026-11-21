@@ -46,10 +46,16 @@ const REPROG_PENDIENTE = {
   include: { horario_propuesto: true },
 } satisfies Prisma.tutoria$reprogramacionArgs;
 
+/** En el detalle de la tutoría también se traen las aceptadas, para saber si fue reprogramada */
+const REPROG_TUTORIA = {
+  where: { estado: { in: ['Pendiente', 'Aceptada'] } },
+  include: { horario_propuesto: true },
+} satisfies Prisma.tutoria$reprogramacionArgs;
+
 export const INCLUDE_TUTORIA = {
   horario_tutor: { include: { tutor: { include: { usuario: true } } } },
   seguimiento: true,
-  reprogramacion: REPROG_PENDIENTE,
+  reprogramacion: REPROG_TUTORIA,
   solicitud_tutoria: {
     include: {
       asignatura: true,
@@ -109,7 +115,11 @@ export function mapTutoria(t: TutoriaCompleta) {
           fecha_registro: t.seguimiento.fecha_registro,
         }
       : null,
-    reprogramacion_pendiente: mapReprogramacion(t.reprogramacion[0]),
+    reprogramacion_pendiente: mapReprogramacion(
+      t.reprogramacion.find((r) => r.estado === 'Pendiente'),
+    ),
+    /** true si alguna vez se aceptó una reprogramación (estado "Reprogramada" del Figma) */
+    reprogramada: t.reprogramacion.some((r) => r.estado === 'Aceptada'),
   };
 }
 

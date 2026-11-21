@@ -45,6 +45,28 @@ export function InicioCoordinadorPage() {
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.5fr_1fr]">
         <div className="flex flex-col gap-5">
+          {/* Figma "Participación por Facultad": la BD tiene una sola facultad, así que se agrupa por carrera */}
+          <Tarjeta className="border-transparent bg-fondo-tutor !p-5 shadow-none">
+            <h2 className="mb-4 font-medium">Participación por Carrera</h2>
+            {m.participacion_por_carrera.length === 0 && <p className="text-sm text-texto-suave">Aún no hay solicitudes.</p>}
+            <div className="flex flex-col gap-3.5">
+              {m.participacion_por_carrera.map((c, i) => {
+                const pct = Math.round((c.total / totalDemanda) * 100);
+                return (
+                  <div key={c.carrera}>
+                    <div className="mb-1 flex justify-between text-xs">
+                      <span>{c.carrera}</span>
+                      <span className="text-texto-suave">{pct}% <span className="text-[10px]">({c.total})</span></span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-campo">
+                      <div className={`h-1.5 rounded-full ${TONOS_BARRA[i % TONOS_BARRA.length]}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Tarjeta>
+
           <Tarjeta className="border-transparent bg-fondo-tutor !p-5 shadow-none">
             <h2 className="mb-4 font-medium">Demanda por Asignatura</h2>
             {m.demanda_por_asignatura.length === 0 && <p className="text-sm text-texto-suave">Aún no hay solicitudes.</p>}
