@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, ChevronDown, ChevronUp, CircleCheck, ClipboardList, Download, FileSpreadsheet, FileText, IdCard } from 'lucide-react';
+import { BarChart3, ChevronDown, ChevronUp, CircleCheck, ClipboardList, Download, FileSpreadsheet, FileText, IdCard, Info, Table2 } from 'lucide-react';
 import { catalogos, reportes, usuarios } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { fechaCorta, hoyISO } from '../../lib/fechas';
@@ -22,6 +22,35 @@ const mesAnterior = (() => {
   return m === 1 ? `${a - 1}-12` : `${a}-${String(m - 1).padStart(2, '0')}`;
 })();
 
+/**
+ * Qué contiene cada tipo de reporte (las columnas las arma el backend) y si el filtro
+ * de Estado de la tutoría aplica. Solo el listado de tutorías se filtra por estado:
+ *  - Asistencia y Progreso usan solo tutorías con seguimiento (= Realizadas).
+ *  - Demanda y Gestión de solicitudes se basan en las solicitudes, no en las tutorías.
+ */
+const INFO_TIPO: Record<TipoReporte, { descripcion: string; filas: string; usaEstado: boolean }> = {
+  'Tutorías realizadas': {
+    descripcion: 'Listado de tutorías: fecha, hora, estudiante, tutor, asignatura, lugar y estado. Usa el filtro de Estado para elegir cuáles.',
+    filas: 'Tutorías listadas', usaEstado: true,
+  },
+  'Asistencia estudiantil': {
+    descripcion: 'Por estudiante: tutorías con seguimiento, asistencias, inasistencias y porcentaje de asistencia.',
+    filas: 'Estudiantes', usaEstado: false,
+  },
+  'Progreso académico': {
+    descripcion: 'Seguimientos registrados por los tutores: asistencia, nivel de progreso y observaciones.',
+    filas: 'Seguimientos', usaEstado: false,
+  },
+  'Demanda por asignatura': {
+    descripcion: 'Por asignatura: solicitudes recibidas, aprobadas, rechazadas, pendientes y tutorías realizadas.',
+    filas: 'Asignaturas', usaEstado: false,
+  },
+  'Gestión de solicitudes': {
+    descripcion: 'Cada solicitud con su estado, fecha de respuesta y motivo de rechazo.',
+    filas: 'Solicitudes', usaEstado: false,
+  },
+};
+
 /** 8.2.12 Generar reporte (Figma 96:366). RF-11: vista previa, PDF/XLSX e historial (regla 3.29.3) */
 export function GenerarReportePage() {
   const asigs = useCarga(() => catalogos.asignaturas(), []);
@@ -36,14 +65,17 @@ export function GenerarReportePage() {
   const [idAsignatura, setIdAsignatura] = useState<number | undefined>();
   const [estado, setEstado] = useState<EstadoTutoria | undefined>('Realizada');
   const [vista, setVista] = useState<VistaPreviaReporte | null>(null);
-  const [verTabla, setVerTabla] = useState(false);
+  const [verTabla, setVerTabla] = useState(true); // abierta: así se ve qué contiene cada tipo
   const [error, setError] = useState('');
   const [descargando, setDescargando] = useState<string | null>(null);
 
+  const info = INFO_TIPO[tipo];
   const rangoInvalido = hastaMes < desdeMes;
   const filtros: FiltrosReporte = {
     tipo, fecha_desde: inicioMes(desdeMes), fecha_hasta: finMes(hastaMes),
-    id_tutor: idTutor, id_asignatura: idAsignatura, estado_filtro: estado,
+    id_tutor: idTutor, id_asignatura: idAsignatura,
+    // El estado solo se envía en el tipo que lo usa (ver INFO_TIPO)
+    estado_filtro: info.usaEstado ? estado : undefined,
   };
   const clave = JSON.stringify(filtros);
 
@@ -85,7 +117,13 @@ export function GenerarReportePage() {
     <div className="max-w-6xl">
       <Encabezado titulo="Generar Reporte" subtitulo="Genera, visualiza y exporta analíticas académicas detalladas." />
 
-      <div className="mb-5 grid gap-3 md:grid-cols-[auto_1fr_1fr_1fr_1.4fr]">
+      <div className="mb-3 grid gap-3 md:grid-cols-[1.4fr_auto_1fr_1fr_1fr]">
+        {/* El tipo va primero porque define qué filtros aplican */}
+        {filtro('Tipo de reporte', (
+          <select className={sel} value={tipo} onChange={(e) => setTipo(e.target.value as TipoReporte)}>
+            {TIPOS_REPORTE.map((t) => <option key={t}>{t}</option>)}
+          </select>
+        ))}
         <div className="flex flex-col gap-1">
           <span className="text-xs text-texto-suave">Período</span>
           <div className="flex gap-2">
@@ -105,22 +143,22 @@ export function GenerarReportePage() {
             {asigs.datos?.map((a) => <option key={a.id_asignatura} value={a.id_asignatura}>{a.nombre}</option>)}
           </select>
         ))}
-        {filtro('Estado', (
+        {filtro('Estado de la tutoría', info.usaEstado ? (
           <select className={sel} value={estado ?? ''} onChange={(e) => setEstado((e.target.value || undefined) as EstadoTutoria | undefined)}>
             <option value="">Todos</option><option value="Programada">Programadas</option><option value="Realizada">Realizadas</option><option value="Cancelada">Canceladas</option>
           </select>
-        ))}
-        {filtro('Tipo de reporte', (
-          <select className={sel} value={tipo} onChange={(e) => setTipo(e.target.value as TipoReporte)}>
-            {TIPOS_REPORTE.map((t) => <option key={t}>{t}</option>)}
-          </select>
+        ) : (
+          <select className={sel} disabled title="Este tipo de reporte no se filtra por estado"><option>No aplica</option></select>
         ))}
       </div>
+      <p className="mb-5 flex items-start gap-1.5 text-xs text-texto-suave">
+        <Info size={14} className="mt-px shrink-0 text-primario" /> <span><b className="font-medium text-texto">{tipo}:</b> {info.descripcion}</span>
+      </p>
 
       {rangoInvalido && <div className="mb-4"><Alerta>El mes final no puede ser anterior al mes inicial.</Alerta></div>}
       {error && <div className="mb-4"><Alerta>{error}</Alerta></div>}
 
-      <div className="mb-5 grid gap-4 sm:grid-cols-2 lg:w-2/3">
+      <div className="mb-5 grid gap-4 sm:grid-cols-3">
         <Tarjeta className="!bg-fondo/60">
           <span className="flex size-10 items-center justify-center rounded-xl bg-primario-suave text-primario"><ClipboardList size={20} /></span>
           <p className="mt-6 text-xs font-medium tracking-wide text-texto-suave uppercase">Total tutorías</p>
@@ -136,6 +174,12 @@ export function GenerarReportePage() {
           <div className="mt-3 h-1.5 rounded-full bg-slate-200">
             <div className="h-1.5 rounded-full bg-primario" style={{ width: `${vista?.tasa_asistencia ?? 0}%` }} />
           </div>
+        </Tarjeta>
+        {/* Tercera tarjeta: lo que cuenta este tipo de reporte (cambia con el tipo) */}
+        <Tarjeta className="!bg-fondo/60">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primario-suave text-primario"><Table2 size={20} /></span>
+          <p className="mt-6 text-xs font-medium tracking-wide text-texto-suave uppercase">{info.filas} en el reporte</p>
+          <p className="text-5xl font-bold text-primario-oscuro">{vista?.filas.length ?? '—'}</p>
         </Tarjeta>
       </div>
 
