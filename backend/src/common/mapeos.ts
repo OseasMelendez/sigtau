@@ -34,10 +34,12 @@ export const mapAsignatura = (a: {
   id_asignatura: number;
   codigo: string;
   nombre: string;
+  area?: string | null;
 }) => ({
   id_asignatura: a.id_asignatura,
   codigo: a.codigo,
   nombre: a.nombre,
+  area: a.area ?? null,
 });
 
 // ---------- Tutorías ----------
@@ -94,6 +96,8 @@ export function mapTutoria(t: TutoriaCompleta) {
     tutor: {
       id_usuario: tutor.id_usuario,
       nombre_completo: tutor.usuario.nombre_completo,
+      titulo: tutor.titulo,
+      departamento: tutor.departamento,
       especialidad: tutor.especialidad,
       biografia: tutor.biografia,
     },
@@ -150,6 +154,7 @@ export function mapSolicitudEstudiante(s: SolicitudCompleta) {
     tutor: {
       id_usuario: s.horario_tutor.tutor.id_usuario,
       nombre_completo: s.horario_tutor.tutor.usuario.nombre_completo,
+      titulo: s.horario_tutor.tutor.titulo,
     },
     franja: mapFranja(s.horario_tutor),
     tutoria: t

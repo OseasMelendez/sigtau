@@ -49,6 +49,7 @@ CREATE TABLE asignatura (
   id_asignatura INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   codigo        VARCHAR(10)  NOT NULL UNIQUE,
   nombre        VARCHAR(100) NOT NULL,
+  area          VARCHAR(60)  NULL,                  -- área académica, p. ej. "Matemáticas" (Figma Historial)
   activa        BOOLEAN      NOT NULL DEFAULT TRUE
 );
 
@@ -96,6 +97,8 @@ CREATE TABLE estudiante (
 CREATE TABLE tutor (
   id_usuario         INT          PRIMARY KEY REFERENCES usuario (id_usuario),
   id_facultad        INT          NOT NULL REFERENCES facultad (id_facultad),
+  titulo             VARCHAR(20)  NULL,             -- título profesional abreviado: "Ing.", "Lic.", "MSc."...
+  departamento       VARCHAR(100) NULL,             -- departamento académico (Figma Historial)
   especialidad       VARCHAR(100) NOT NULL,
   telefono_contacto  VARCHAR(15)  NULL,
   biografia          VARCHAR(500) NULL
@@ -382,12 +385,12 @@ INSERT INTO carrera (id_facultad, codigo, nombre) VALUES
   (1, 'IDS', 'Ingeniería en Desarrollo de Software'),               -- 1
   (1, 'IIN', 'Ingeniería Industrial');                              -- 2
 
-INSERT INTO asignatura (codigo, nombre) VALUES
-  ('MAT115', 'Cálculo Diferencial'),                                -- 1
-  ('MAT215', 'Cálculo Integral'),                                   -- 2
-  ('FIS115', 'Física I'),                                           -- 3
-  ('FIS215', 'Física II'),                                          -- 4
-  ('PRG115', 'Programación I');                                     -- 5
+INSERT INTO asignatura (codigo, nombre, area) VALUES
+  ('MAT115', 'Cálculo Diferencial', 'Matemáticas'),                 -- 1
+  ('MAT215', 'Cálculo Integral',    'Matemáticas'),                 -- 2
+  ('FIS115', 'Física I',            'Física'),                      -- 3
+  ('FIS215', 'Física II',           'Física'),                      -- 4
+  ('PRG115', 'Programación I',      'Programación');                -- 5
 
 -- bcrypt con factor 10 (RNF-02). En el sistema real el hash lo genera el backend.
 INSERT INTO usuario (nombre_usuario, nombre_completo, identificacion, correo, contrasena_hash, rol, activo,
@@ -411,12 +414,12 @@ INSERT INTO sesion (id_usuario, token_hash, fecha_inicio, fecha_expiracion, fech
 INSERT INTO estudiante (id_usuario, id_carrera, ciclo) VALUES
   (7, 1, 5), (8, 1, 5), (9, 2, 3), (10, 1, 2), (11, 2, 7);
 
-INSERT INTO tutor (id_usuario, id_facultad, especialidad, telefono_contacto, biografia) VALUES
-  (2, 1, 'Matemática',            '2440-1001', 'Docente del Departamento de Matemática con experiencia en cálculo integral.'),
-  (3, 1, 'Matemáticas Aplicadas', NULL,        'Docente de cálculo diferencial e integral.'),
-  (4, 1, 'Física y Matemática',   '2440-1003', 'Docente de Física I y II.'),
-  (5, 1, 'Física',                NULL,        NULL),
-  (6, 1, 'Programación',          '2440-1005', 'Docente de programación estructurada.');
+INSERT INTO tutor (id_usuario, id_facultad, titulo, departamento, especialidad, telefono_contacto, biografia) VALUES
+  (2, 1, 'Lic.', 'Departamento de Matemática',              'Matemática',            '2440-1001', 'Docente del Departamento de Matemática con experiencia en cálculo integral.'),
+  (3, 1, 'Ing.', 'Departamento de Matemática',              'Matemáticas Aplicadas', NULL,        'Docente de cálculo diferencial e integral.'),
+  (4, 1, 'MSc.', 'Departamento de Física',                  'Física y Matemática',   '2440-1003', 'Docente de Física I y II.'),
+  (5, 1, 'Lic.', 'Departamento de Física',                  'Física',                NULL,        NULL),
+  (6, 1, 'Ing.', 'Departamento de Ingeniería y Arquitectura', 'Programación',        '2440-1005', 'Docente de programación estructurada.');
 
 INSERT INTO tutor_asignatura (id_tutor, id_asignatura) VALUES
   (2, 2),            -- Méndez: Cálculo Integral

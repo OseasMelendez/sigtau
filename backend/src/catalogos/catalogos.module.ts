@@ -55,6 +55,7 @@ export class CatalogosService {
     return tutores.map((t) => ({
       id_usuario: t.id_usuario,
       nombre_completo: t.usuario.nombre_completo,
+      titulo: t.titulo,
       especialidad: t.especialidad,
       franjas_disponibles: t.horario_tutor.length,
       dias_disponibles: [
@@ -75,6 +76,8 @@ export class CatalogosService {
     return {
       id_usuario: t.id_usuario,
       nombre_completo: t.usuario.nombre_completo,
+      titulo: t.titulo,
+      departamento: t.departamento,
       especialidad: t.especialidad,
       biografia: t.biografia,
       telefono_contacto: t.telefono_contacto,

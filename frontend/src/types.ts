@@ -18,6 +18,8 @@ export interface Asignatura {
   id_asignatura: number;
   codigo: string;
   nombre: string;
+  /** Área académica, p. ej. "Matemáticas" (puede faltar en asignaturas antiguas) */
+  area?: string | null;
 }
 
 export interface Franja {
@@ -35,12 +37,15 @@ export interface PersonaResumen {
 
 /** Tarjeta de tutor en Nueva Solicitud */
 export interface TutorResumen extends PersonaResumen {
+  titulo: string | null;        // "Ing.", "Lic."...
   especialidad: string;
   franjas_disponibles: number;  // franjas Disponibles desde hoy
   dias_disponibles: number[];   // días de la semana con franjas disponibles, 1 = lunes ... 7 = domingo
 }
 
 export interface TutorDetalle extends PersonaResumen {
+  titulo: string | null;
+  departamento: string | null;
   especialidad: string;
   biografia: string | null;
   telefono_contacto: string | null;
@@ -70,7 +75,12 @@ export interface Tutoria {
   lugar: string | null;
   franja: Franja;              // horario vigente
   asignatura: Asignatura;
-  tutor: PersonaResumen & { especialidad: string; biografia: string | null };
+  tutor: PersonaResumen & {
+    titulo: string | null;
+    departamento: string | null;
+    especialidad: string;
+    biografia: string | null;
+  };
   estudiante: PersonaResumen & { carrera: string };
   descripcion_dificultad: string;
   fecha_programacion: string;
@@ -91,7 +101,7 @@ export interface SolicitudEstudiante {
   fecha_solicitud: string;
   fecha_respuesta: string | null;
   asignatura: Asignatura;
-  tutor: PersonaResumen;
+  tutor: PersonaResumen & { titulo: string | null };
   franja: Franja;              // franja que eligió el estudiante
   tutoria: {
     id_tutoria: number;
@@ -135,6 +145,8 @@ export interface UsuarioAdmin {
   estudiante: { id_carrera: number; carrera: string; ciclo: number | null } | null;
   tutor: {
     id_facultad: number;
+    titulo: string | null;
+    departamento: string | null;
     especialidad: string;
     telefono_contacto: string | null;
     biografia: string | null;

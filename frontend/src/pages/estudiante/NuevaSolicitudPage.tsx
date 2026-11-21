@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CalendarCheck, ChevronDown } from 'lucide-react';
 import { catalogos, solicitudes, tutores } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
+import { nombreTutor } from '../../lib/nombres';
 import { textoFranja } from '../../lib/fechas';
 import { Alerta, Boton, Campo, Cargando, Encabezado, Tarjeta, Vacio, claseInput } from '../../components/ui';
 import { Iniciales } from '../../components/Layout';
@@ -126,7 +127,7 @@ export function NuevaSolicitudPage() {
               {franja && tutorElegido ? (
                 <div className="mt-4 flex items-center gap-3 rounded-xl border border-primario/30 bg-primario-suave/40 px-4 py-3 text-sm">
                   <CalendarCheck size={20} className="text-primario" />
-                  <span><b>{tutorElegido.nombre_completo}</b> · <span className="text-primario-oscuro">{textoFranja(franja)}</span></span>
+                  <span><b>{nombreTutor(tutorElegido)}</b> · <span className="text-primario-oscuro">{textoFranja(franja)}</span></span>
                   <Link className="ml-auto font-semibold text-primario hover:underline"
                     to={`/estudiante/nueva-solicitud/tutor/${idTutor}?asignatura=${idAsignatura}`}>Cambiar</Link>
                 </div>
@@ -160,7 +161,7 @@ function TarjetaTutor({ tutor, seleccionado, enlace }: { tutor: TutorResumen; se
   return (
     <div className={`flex flex-col items-center rounded-xl border bg-white px-3 pt-4 pb-3 text-center ${seleccionado ? 'border-primario ring-2 ring-primario/30' : 'border-borde'}`}>
       <Iniciales nombre={tutor.nombre_completo} className="size-12 text-base" />
-      <p className="mt-3 font-semibold">{tutor.nombre_completo}</p>
+      <p className="mt-3 font-semibold">{nombreTutor(tutor)}</p>
       <span className={`mt-1 rounded-full px-2 py-0.5 text-[11px] ${colorEspecialidad(tutor.especialidad)}`}>{tutor.especialidad}</span>
       <div className="mt-5 flex gap-1">
         {DIAS.map((d, i) => {

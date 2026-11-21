@@ -1,10 +1,3 @@
-// Esquema Prisma de SIGTAU, equivalente a SIGTAU_BD.sql (esquema "sigtau").
-// La base de datos es la fuente de verdad: las tablas, disparadores y restricciones
-// (EXCLUDE de franjas, índices únicos parciales) viven en PostgreSQL. Este archivo
-// solo describe las tablas para que Prisma genere el cliente tipado.
-// Para regenerarlo desde la base: npx prisma db pull   (y luego npx prisma generate)
-// NO usar "prisma migrate" ni "prisma db push": borrarían los disparadores.
-
 generator client {
   provider   = "prisma-client-js"
   engineType = "client"
@@ -27,7 +20,7 @@ model carrera {
   id_facultad Int
   codigo      String       @unique @db.VarChar(10)
   nombre      String       @db.VarChar(100)
-  facultad    facultad     @relation(fields: [id_facultad], references: [id_facultad])
+  facultad    facultad     @relation(fields: [id_facultad], references: [id_facultad], onDelete: NoAction, onUpdate: NoAction)
   estudiante  estudiante[]
 }
 
@@ -35,6 +28,7 @@ model asignatura {
   id_asignatura     Int                 @id @default(autoincrement())
   codigo            String              @unique @db.VarChar(10)
   nombre            String              @db.VarChar(100)
+  area              String?             @db.VarChar(60)
   activa            Boolean             @default(true)
   reporte           reporte[]
   solicitud_tutoria solicitud_tutoria[]
@@ -69,50 +63,50 @@ model sesion {
   fecha_inicio     DateTime  @default(now()) @db.Timestamp(6)
   fecha_expiracion DateTime  @db.Timestamp(6)
   fecha_cierre     DateTime? @db.Timestamp(6)
-  usuario          usuario   @relation(fields: [id_usuario], references: [id_usuario])
+  usuario          usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model estudiante {
   id_usuario        Int                 @id
   id_carrera        Int
   ciclo             Int?                @db.SmallInt
-  carrera           carrera             @relation(fields: [id_carrera], references: [id_carrera])
-  usuario           usuario             @relation(fields: [id_usuario], references: [id_usuario])
+  carrera           carrera             @relation(fields: [id_carrera], references: [id_carrera], onDelete: NoAction, onUpdate: NoAction)
+  usuario           usuario             @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
   solicitud_tutoria solicitud_tutoria[]
 }
 
 model tutor {
   id_usuario        Int                @id
   id_facultad       Int
+  titulo            String?            @db.VarChar(20)
+  departamento      String?            @db.VarChar(100)
   especialidad      String             @db.VarChar(100)
   telefono_contacto String?            @db.VarChar(15)
   biografia         String?            @db.VarChar(500)
   horario_tutor     horario_tutor[]
   reporte           reporte[]
-  facultad          facultad           @relation(fields: [id_facultad], references: [id_facultad])
-  usuario           usuario            @relation(fields: [id_usuario], references: [id_usuario])
+  facultad          facultad           @relation(fields: [id_facultad], references: [id_facultad], onDelete: NoAction, onUpdate: NoAction)
+  usuario           usuario            @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
   tutor_asignatura  tutor_asignatura[]
 }
 
 model tutor_asignatura {
   id_tutor      Int
   id_asignatura Int
-  asignatura    asignatura @relation(fields: [id_asignatura], references: [id_asignatura])
-  tutor         tutor      @relation(fields: [id_tutor], references: [id_usuario])
+  asignatura    asignatura @relation(fields: [id_asignatura], references: [id_asignatura], onDelete: NoAction, onUpdate: NoAction)
+  tutor         tutor      @relation(fields: [id_tutor], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([id_tutor, id_asignatura])
 }
 
-// Restricciones en la BD: hora_fin > hora_inicio y EXCLUDE (sin solapamiento por tutor)
 model horario_tutor {
-  id_horario  Int      @id @default(autoincrement())
-  id_tutor    Int
-  fecha       DateTime @db.Date
-  hora_inicio DateTime @db.Time(6)
-  hora_fin    DateTime @db.Time(6)
-  estado      String   @default("Disponible") @db.VarChar(10)
-  tutor       tutor    @relation(fields: [id_tutor], references: [id_usuario])
-
+  id_horario               Int                 @id @default(autoincrement())
+  id_tutor                 Int
+  fecha                    DateTime            @db.Date
+  hora_inicio              DateTime            @db.Time(6)
+  hora_fin                 DateTime            @db.Time(6)
+  estado                   String              @default("Disponible") @db.VarChar(10)
+  tutor                    tutor               @relation(fields: [id_tutor], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
   reprogramacion_anterior  reprogramacion[]    @relation("reprog_anterior")
   reprogramacion_propuesta reprogramacion[]    @relation("reprog_propuesto")
   solicitud_tutoria        solicitud_tutoria[]
@@ -130,9 +124,9 @@ model solicitud_tutoria {
   motivo_rechazo         String?       @db.VarChar(255)
   fecha_solicitud        DateTime      @default(now()) @db.Timestamp(6)
   fecha_respuesta        DateTime?     @db.Timestamp(6)
-  asignatura             asignatura    @relation(fields: [id_asignatura], references: [id_asignatura])
-  estudiante             estudiante    @relation(fields: [id_estudiante], references: [id_usuario])
-  horario_tutor          horario_tutor @relation(fields: [id_horario], references: [id_horario])
+  asignatura             asignatura    @relation(fields: [id_asignatura], references: [id_asignatura], onDelete: NoAction, onUpdate: NoAction)
+  estudiante             estudiante    @relation(fields: [id_estudiante], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
+  horario_tutor          horario_tutor @relation(fields: [id_horario], references: [id_horario], onDelete: NoAction, onUpdate: NoAction)
   tutoria                tutoria?
 
   @@index([id_estudiante], map: "idx_solicitud_estudiante")
@@ -150,8 +144,8 @@ model tutoria {
   fecha_cancelacion  DateTime?         @db.Timestamp(6)
   reprogramacion     reprogramacion[]
   seguimiento        seguimiento?
-  horario_tutor      horario_tutor     @relation(fields: [id_horario], references: [id_horario])
-  solicitud_tutoria  solicitud_tutoria @relation(fields: [id_solicitud], references: [id_solicitud])
+  horario_tutor      horario_tutor     @relation(fields: [id_horario], references: [id_horario], onDelete: NoAction, onUpdate: NoAction)
+  solicitud_tutoria  solicitud_tutoria @relation(fields: [id_solicitud], references: [id_solicitud], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([estado], map: "idx_tutoria_estado")
 }
@@ -165,9 +159,9 @@ model reprogramacion {
   estado               String        @default("Pendiente") @db.VarChar(10)
   fecha_propuesta      DateTime      @default(now()) @db.Timestamp(6)
   fecha_respuesta      DateTime?     @db.Timestamp(6)
-  horario_anterior     horario_tutor @relation("reprog_anterior", fields: [id_horario_anterior], references: [id_horario])
-  horario_propuesto    horario_tutor @relation("reprog_propuesto", fields: [id_horario_propuesto], references: [id_horario])
-  tutoria              tutoria       @relation(fields: [id_tutoria], references: [id_tutoria])
+  horario_anterior     horario_tutor @relation("reprog_anterior", fields: [id_horario_anterior], references: [id_horario], onDelete: NoAction, onUpdate: NoAction)
+  horario_propuesto    horario_tutor @relation("reprog_propuesto", fields: [id_horario_propuesto], references: [id_horario], onDelete: NoAction, onUpdate: NoAction)
+  tutoria              tutoria       @relation(fields: [id_tutoria], references: [id_tutoria], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model seguimiento {
@@ -177,7 +171,7 @@ model seguimiento {
   nivel_progreso String?  @db.VarChar(8)
   observaciones  String
   fecha_registro DateTime @default(now()) @db.Timestamp(6)
-  tutoria        tutoria  @relation(fields: [id_tutoria], references: [id_tutoria])
+  tutoria        tutoria  @relation(fields: [id_tutoria], references: [id_tutoria], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model notificacion {
@@ -188,7 +182,7 @@ model notificacion {
   mensaje         String   @db.VarChar(255)
   leida           Boolean  @default(false)
   fecha_envio     DateTime @default(now()) @db.Timestamp(6)
-  usuario         usuario  @relation(fields: [id_usuario], references: [id_usuario])
+  usuario         usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([id_usuario, leida], map: "idx_notificacion_usuario")
 }
@@ -204,7 +198,7 @@ model reporte {
   estado_filtro    String?     @db.VarChar(10)
   formato          String      @db.VarChar(4)
   fecha_generacion DateTime    @default(now()) @db.Timestamp(6)
-  asignatura       asignatura? @relation(fields: [id_asignatura], references: [id_asignatura])
-  coordinador      usuario     @relation(fields: [id_coordinador], references: [id_usuario])
-  tutor            tutor?      @relation(fields: [id_tutor], references: [id_usuario])
+  asignatura       asignatura? @relation(fields: [id_asignatura], references: [id_asignatura], onDelete: NoAction, onUpdate: NoAction)
+  coordinador      usuario     @relation(fields: [id_coordinador], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
+  tutor            tutor?      @relation(fields: [id_tutor], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
 }

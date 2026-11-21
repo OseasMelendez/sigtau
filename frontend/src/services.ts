@@ -105,6 +105,8 @@ export interface DatosUsuario {
   estudiante?: { id_carrera: number; ciclo: number | null };
   tutor?: {
     id_facultad: number;
+    titulo: string | null;
+    departamento: string | null;
     especialidad: string;
     telefono_contacto: string | null;
     biografia: string | null;

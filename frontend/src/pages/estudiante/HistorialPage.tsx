@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ArrowDownUp, CalendarDays, Clock, Download, Lightbulb, Quote, TrendingUp, UserCheck } from 'lucide-react';
 import { tutorias } from '../../services';
 import { useCarga } from '../../lib/hooks';
+import { nombreTutor } from '../../lib/nombres';
 import { diaMes, duracion, fechaConDia } from '../../lib/fechas';
 import { Alerta, Badge, Boton, Cargando, Encabezado, Vacio, claseInput } from '../../components/ui';
 import { Iniciales } from '../../components/Layout';
@@ -80,7 +81,7 @@ export function HistorialPage() {
                   </div>
                   <p className="mt-2 text-[15px] font-medium">{t.asignatura.nombre}</p>
                   <p className="mt-1.5 flex items-center gap-2 text-[11px] text-texto-suave">
-                    <Iniciales nombre={t.tutor.nombre_completo} className="size-5 text-[8px]" /> {t.tutor.nombre_completo}
+                    <Iniciales nombre={t.tutor.nombre_completo} className="size-5 text-[8px]" /> {nombreTutor(t.tutor)}
                   </p>
                 </button>
               ))}
@@ -95,6 +96,7 @@ export function HistorialPage() {
                 <div className="relative">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-3 text-texto-suave">
+                      {sel.asignatura.area && <span className="rounded-full border border-borde bg-white px-2 text-[10px] text-texto-suave">{sel.asignatura.area}</span>}
                       <Badge estado={sel.estado} className="!px-2 !py-0 !text-[10px]" />
                       {sel.reprogramada && <Badge estado="Reprogramada" className="!px-2 !py-0 !text-[10px]" />}
                       <span className="flex items-center gap-1 text-[11px]"><Clock size={12} /> {sel.franja.hora_inicio} – {sel.franja.hora_fin} ({duracion(sel.franja.hora_inicio, sel.franja.hora_fin)})</span>
@@ -116,8 +118,9 @@ export function HistorialPage() {
                     <div className="flex items-center gap-3">
                       <Iniciales nombre={sel.tutor.nombre_completo} className="size-10 text-sm" />
                       <div>
-                        <p className="text-sm font-semibold">{sel.tutor.nombre_completo}</p>
-                        <p className="text-[11px] text-texto-suave">{sel.tutor.especialidad}</p>
+                        <p className="text-sm font-semibold">{nombreTutor(sel.tutor)}</p>
+                        {/* Figma: "Dpto. Matemáticas Aplicadas" */}
+                        <p className="text-[11px] text-texto-suave">{sel.tutor.departamento ?? sel.tutor.especialidad}</p>
                       </div>
                     </div>
                   </div>

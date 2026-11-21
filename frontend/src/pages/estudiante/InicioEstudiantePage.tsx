@@ -3,6 +3,7 @@ import { Bell, CalendarDays, Clock, FileText, type LucideIcon } from 'lucide-rea
 import { useAuth } from '../../auth/AuthContext';
 import { notificaciones, solicitudes, tutorias } from '../../services';
 import { useCarga } from '../../lib/hooks';
+import { nombreTutor } from '../../lib/nombres';
 import { hoyISO, horaActual, sumarDias } from '../../lib/fechas';
 import { Alerta, Badge, Cargando, Tarjeta, Vacio } from '../../components/ui';
 import { Iniciales } from '../../components/Layout';
@@ -73,7 +74,7 @@ export function InicioEstudiantePage() {
                 <div className="mt-5 flex items-center gap-3">
                   <Iniciales nombre={t.tutor.nombre_completo} className="size-9 text-xs" />
                   <div>
-                    <p className="text-sm font-medium">{t.tutor.nombre_completo}</p>
+                    <p className="text-sm font-medium">{nombreTutor(t.tutor)}</p>
                     <p className="text-xs text-texto-suave">Tutor Asignado</p>
                   </div>
                 </div>

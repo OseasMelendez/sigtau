@@ -53,6 +53,16 @@ class DatosEstudianteDto {
 
 class DatosTutorDto {
   @IsInt({ message: 'Selecciona la facultad' }) id_facultad!: number;
+  @IsOptional()
+  @Transform(recortar)
+  @IsString()
+  @MaxLength(20, { message: 'El título no puede superar 20 caracteres' })
+  titulo?: string | null;
+  @IsOptional()
+  @Transform(recortar)
+  @IsString()
+  @MaxLength(100, { message: 'El departamento no puede superar 100 caracteres' })
+  departamento?: string | null;
   @Transform(recortar)
   @IsString()
   @IsNotEmpty({ message: 'La especialidad es obligatoria' })
@@ -138,6 +148,8 @@ function mapUsuario(
     tutor: u.tutor
       ? {
           id_facultad: u.tutor.id_facultad,
+          titulo: u.tutor.titulo,
+          departamento: u.tutor.departamento,
           especialidad: u.tutor.especialidad,
           telefono_contacto: u.tutor.telefono_contacto,
           biografia: u.tutor.biografia,
@@ -200,6 +212,8 @@ export class UsuariosService {
   private datosTutor(t: DatosTutorDto) {
     return {
       id_facultad: t.id_facultad,
+      titulo: t.titulo || null,
+      departamento: t.departamento || null,
       especialidad: t.especialidad,
       telefono_contacto: t.telefono_contacto || null,
       biografia: t.biografia || null,

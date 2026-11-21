@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CalendarDays, Clock, XCircle } from 'lucide-react';
 import { solicitudes } from '../../services';
 import { useCarga } from '../../lib/hooks';
+import { nombreTutor } from '../../lib/nombres';
 import { diaMes, textoFranja } from '../../lib/fechas';
 import { Alerta, Badge, Boton, Cargando, Encabezado, Tarjeta, Vacio } from '../../components/ui';
 import { Iniciales } from '../../components/Layout';
@@ -53,7 +54,7 @@ export function MisSolicitudesPage() {
 
       {modal && (
         <ModalReprogramacion reprogramacion={modal.s.tutoria!.reprogramacion_pendiente} accion={modal.accion}
-          asignatura={modal.s.asignatura.nombre} tutor={modal.s.tutor.nombre_completo}
+          asignatura={modal.s.asignatura.nombre} tutor={nombreTutor(modal.s.tutor)}
           onCerrar={() => setModal(null)} onListo={() => { setModal(null); recargar(); }} />
       )}
     </div>
@@ -78,7 +79,7 @@ function TarjetaSolicitud({ s, onResponder }: { s: SolicitudEstudiante; onRespon
         <Iniciales nombre={s.tutor.nombre_completo} className="size-8 text-[11px]" />
         <div>
           <p className="text-[10px] text-texto-suave">{s.estado === 'Aprobada' ? 'Tutor' : 'Tutor solicitado'}</p>
-          <p className="text-xs font-semibold">{s.tutor.nombre_completo}</p>
+          <p className="text-xs font-semibold">{nombreTutor(s.tutor)}</p>
         </div>
       </div>
 

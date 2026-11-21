@@ -6,6 +6,7 @@ import {
 import { useAuth } from '../auth/AuthContext';
 import { tutorias } from '../services';
 import { useCarga } from '../lib/hooks';
+import { nombreTutor } from '../lib/nombres';
 import { duracion, fechaConDia, fechaHora, textoFranja, yaOcurrio } from '../lib/fechas';
 import { Alerta, Badge, Boton, Cargando, Tarjeta } from '../components/ui';
 import { Iniciales } from '../components/Layout';
@@ -93,10 +94,11 @@ export function DetalleTutoriaPage() {
             <Iniciales nombre={persona.nombre_completo} className="size-16 text-xl" />
             <div className="min-w-0">
               <p className="text-[10px] text-texto-suave">{esEstudiante ? 'Tutor' : 'Estudiante'}</p>
-              <p className="text-lg font-medium">{persona.nombre_completo}</p>
+              <p className="text-lg font-medium">{esEstudiante ? nombreTutor(t.tutor) : persona.nombre_completo}</p>
               <span className="mt-0.5 inline-block rounded-full bg-campo px-2 py-0.5 text-[10px] text-texto-suave">
                 {esEstudiante ? t.tutor.especialidad : t.estudiante.carrera}
               </span>
+              {esEstudiante && t.tutor.departamento && <span className="ml-1.5 text-[10px] text-texto-suave">{t.tutor.departamento}</span>}
               {esEstudiante && t.tutor.biografia && <p className="mt-2 max-w-md text-xs text-texto-suave">{t.tutor.biografia}</p>}
             </div>
           </Tarjeta>
@@ -135,7 +137,7 @@ export function DetalleTutoriaPage() {
 
       {accion && (
         <ModalReprogramacion reprogramacion={t.reprogramacion_pendiente} accion={accion}
-          asignatura={t.asignatura.nombre} tutor={t.tutor.nombre_completo}
+          asignatura={t.asignatura.nombre} tutor={nombreTutor(t.tutor)}
           onCerrar={() => setAccion(null)} onListo={() => { setAccion(null); recargar(); }} />
       )}
       <ModalCancelar tutoria={modalTutor === 'cancelar' ? t : null} onCerrar={() => setModalTutor(null)} onListo={() => { setModalTutor(null); recargar(); }} />

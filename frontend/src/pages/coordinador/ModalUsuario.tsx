@@ -36,6 +36,8 @@ export function ModalUsuario({ usuario: u, onCerrar, onListo }: { usuario: Usuar
     id_facultad: u?.tutor?.id_facultad ?? 0,
     id_carrera: carreraInicial,
     ciclo: u?.estudiante?.ciclo ? String(u.estudiante.ciclo) : '',
+    titulo: u?.tutor?.titulo ?? '',
+    departamento: u?.tutor?.departamento ?? '',
     especialidad: u?.tutor?.especialidad ?? '',
     telefono_contacto: u?.tutor?.telefono_contacto ?? '',
     biografia: u?.tutor?.biografia ?? '',
@@ -92,6 +94,7 @@ export function ModalUsuario({ usuario: u, onCerrar, onListo }: { usuario: Usuar
         ? { estudiante: { id_carrera: Number(f.id_carrera), ciclo: f.ciclo ? Number(f.ciclo) : null } }
         : { tutor: {
             id_facultad: Number(f.id_facultad), especialidad: f.especialidad.trim(),
+            titulo: f.titulo.trim() || null, departamento: f.departamento.trim() || null,
             telefono_contacto: f.telefono_contacto.trim() || null, biografia: f.biografia.trim() || null, asignaturas: f.asignaturas,
           } }),
     };
@@ -199,6 +202,14 @@ export function ModalUsuario({ usuario: u, onCerrar, onListo }: { usuario: Usuar
             </>
           ) : (
             <>
+              {/* Título profesional y departamento (se muestran a los estudiantes: "Ing. Jonathan Sirón") */}
+              <Campo etiqueta="Título profesional" opcional htmlFor="u-titulo" ayuda="Abreviado: Ing., Lic., MSc., Dr.">
+                {texto('titulo', { maxLength: 20, list: 'titulos', placeholder: 'Ej. Ing.' })}
+                <datalist id="titulos">{['Ing.', 'Lic.', 'MSc.', 'Dr.', 'Dra.', 'Prof.'].map((t) => <option key={t} value={t} />)}</datalist>
+              </Campo>
+              <Campo etiqueta="Departamento" opcional htmlFor="u-departamento">
+                {texto('departamento', { maxLength: 100, placeholder: 'Ej. Departamento de Matemática' })}
+              </Campo>
               <Campo etiqueta="Especialidad / Áreas de Conocimiento" htmlFor="u-especialidad" error={errores.especialidad}>
                 {texto('especialidad', { maxLength: 100, list: 'especialidades', placeholder: 'Seleccionar o escribir…' })}
                 <datalist id="especialidades">{ESPECIALIDADES.map((e) => <option key={e} value={e} />)}</datalist>
