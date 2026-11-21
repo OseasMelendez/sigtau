@@ -13,6 +13,20 @@ const MAX = 500;
 const DIAS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 export const BORRADOR = 'sigtau:borrador-dificultad';
 
+/** Campo relleno lila sin borde, como el select y el textarea del Figma. */
+// "!" porque claseInput ya trae bg-white y border-borde, y Tailwind los generaría después
+const claseRelleno = `${claseInput} border-transparent! bg-campo!`;
+
+/** Colores de la etiqueta de especialidad (en el Figma cada una tiene su color). */
+const COLORES_ESPECIALIDAD = [
+  'bg-primario-suave text-primario-oscuro',
+  'bg-amber-100 text-amber-800',
+  'bg-sky-100 text-sky-800',
+  'bg-emerald-100 text-emerald-800',
+];
+const colorEspecialidad = (e: string) =>
+  COLORES_ESPECIALIDAD[[...e].reduce((s, c) => s + c.charCodeAt(0), 0) % COLORES_ESPECIALIDAD.length];
+
 /**
  * 8.2.3 Nueva solicitud (Figma 1:179). RF-03
  * Flujo: asignatura -> tutor -> "Ver disponibilidad" (DetalleTutorPage) -> elige franja
@@ -83,10 +97,10 @@ export function NuevaSolicitudPage() {
       <Encabezado titulo="Nueva Solicitud" subtitulo="Completa los detalles para programar tu sesión de tutoría académica." />
 
       <form onSubmit={enviar} noValidate>
-        <Tarjeta className="flex flex-col gap-7 !p-7">
+        <Tarjeta className="flex flex-col gap-7 border-transparent !p-7 shadow-md shadow-primario/5">
           <Campo etiqueta="Asignatura" htmlFor="asignatura" error={errores.asignatura}>
             <div className="relative w-full max-w-xs">
-              <select id="asignatura" className={`${claseInput} appearance-none pr-9`} value={idAsignatura || ''}
+              <select id="asignatura" className={`${claseRelleno} cursor-pointer appearance-none pr-9`} value={idAsignatura || ''}
                 aria-invalid={!!errores.asignatura}
                 onChange={(e) => setParams(e.target.value ? { asignatura: e.target.value } : {})}>
                 <option value="">Selecciona una asignatura</option>
@@ -121,8 +135,8 @@ export function NuevaSolicitudPage() {
           )}
 
           <Campo etiqueta="Describe tu dificultad académica" htmlFor="dificultad" error={errores.dificultad}
-            derecha={`${dificultad.length}/${MAX} caract.`}>
-            <textarea id="dificultad" rows={4} maxLength={MAX} className={`${claseInput} resize-none bg-fondo`}
+            derecha={dificultad.length ? `${dificultad.length}/${MAX} caract.` : `Máx. ${MAX} caract.`}>
+            <textarea id="dificultad" rows={4} maxLength={MAX} className={`${claseRelleno} resize-none`}
               aria-invalid={!!errores.dificultad} value={dificultad}
               placeholder="Ej: Tengo problemas para entender los conceptos de derivadas parciales en el capítulo 4…"
               onChange={(e) => setDificultad(e.target.value)} />
@@ -144,20 +158,25 @@ export function NuevaSolicitudPage() {
 
 function TarjetaTutor({ tutor, seleccionado, enlace }: { tutor: TutorResumen; seleccionado: boolean; enlace: string }) {
   return (
-    <div className={`flex flex-col items-center rounded-xl border bg-white p-4 text-center ${seleccionado ? 'border-primario ring-2 ring-primario/30' : 'border-borde'}`}>
-      <Iniciales nombre={tutor.nombre_completo} className="size-14 text-lg" />
+    <div className={`flex flex-col items-center rounded-xl border bg-white px-3 pt-4 pb-3 text-center ${seleccionado ? 'border-primario ring-2 ring-primario/30' : 'border-borde'}`}>
+      <Iniciales nombre={tutor.nombre_completo} className="size-12 text-base" />
       <p className="mt-3 font-semibold">{tutor.nombre_completo}</p>
-      <span className="mt-1 rounded-full bg-primario-suave px-2 py-0.5 text-xs text-primario-oscuro">{tutor.especialidad}</span>
-      <div className="mt-4 flex gap-1">
-        {DIAS.map((d, i) => (
-          <span key={d} className={`flex size-6 items-center justify-center rounded-full text-[10px] font-semibold ${
-            tutor.dias_disponibles.includes(i + 1) ? 'bg-primario text-white' : 'bg-fondo text-slate-400'}`}>{d}</span>
-        ))}
+      <span className={`mt-1 rounded-full px-2 py-0.5 text-[11px] ${colorEspecialidad(tutor.especialidad)}`}>{tutor.especialidad}</span>
+      <div className="mt-5 flex gap-1">
+        {DIAS.map((d, i) => {
+          const disponible = tutor.dias_disponibles.includes(i + 1);
+          // El Figma muestra de lunes a sábado; el domingo solo aparece si el tutor tiene franjas ese día
+          if (d === 'D' && !disponible) return null;
+          return (
+            <span key={d} className={`flex size-6 items-center justify-center rounded-full text-[10px] font-semibold ${
+              disponible ? 'bg-primario-oscuro text-white' : 'bg-campo/70 text-slate-400'}`}>{d}</span>
+          );
+        })}
       </div>
-      <p className="mt-2 text-xs text-texto-suave">
+      <p className="mt-2 text-[11px] text-texto-suave">
         {tutor.franjas_disponibles} {tutor.franjas_disponibles === 1 ? 'cupo disponible' : 'cupos disponibles'}
       </p>
-      <Link to={enlace} className="mt-3 w-full rounded-lg border border-borde py-1.5 text-sm font-semibold text-primario-oscuro hover:bg-fondo">
+      <Link to={enlace} className="mt-2 w-full rounded-md border border-borde py-1.5 text-xs font-semibold text-primario hover:bg-fondo">
         Ver disponibilidad
       </Link>
     </div>
