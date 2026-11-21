@@ -1,0 +1,25 @@
+# Despliegue del frontend en Netlify.
+# El backend (NestJS) está en Render y la base de datos en Neon.
+
+[build]
+  base    = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# /api/* se reenvía al backend de Render. Así el navegador ve frontend y API en el
+# mismo dominio y la cookie de sesión (httpOnly, SameSite=strict) funciona igual
+# que con el proxy de Vite en desarrollo.
+[[redirects]]
+  from   = "/api/*"
+  to     = "https://sigtau.onrender.com/api/:splat"
+  status = 200
+  force  = true
+
+# React Router: cualquier otra ruta (p. ej. /tutor/horarios al recargar) sirve index.html
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
