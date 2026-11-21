@@ -96,7 +96,7 @@ export function UsuariosPage() {
                 <tr key={u.id_usuario} className={`border-t border-borde ${u.activo ? '' : 'bg-slate-50 text-texto-suave'}`}>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
-                      <Iniciales nombre={u.nombre_completo} className={`size-9 text-xs ${u.activo ? '' : 'grayscale'}`} />
+                      <Iniciales id={u.id_usuario} nombre={u.nombre_completo} className={`size-9 text-xs ${u.activo ? '' : 'grayscale'}`} />
                       <div>
                         <p className={`font-medium ${u.activo ? '' : 'line-through'}`}>{u.nombre_completo}</p>
                         <p className="text-xs text-texto-suave">{u.nombre_usuario} · {u.identificacion}</p>

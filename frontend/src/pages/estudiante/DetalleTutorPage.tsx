@@ -50,7 +50,7 @@ export function DetalleTutorPage() {
 
       <div className="grid items-start gap-5 lg:grid-cols-[18rem_1fr]">
         <Tarjeta className="border-transparent text-center shadow-md shadow-primario/5">
-          <Iniciales nombre={t.nombre_completo} className="size-24 text-3xl" />
+          <Iniciales id={t.id_usuario} nombre={t.nombre_completo} className="size-24 text-3xl" />
           <h1 className="mt-4 text-xl font-semibold">{nombreTutor(t)}</h1>
           {t.departamento && <p className="text-xs text-texto-suave">{t.departamento}</p>}
           <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-primario-suave px-2.5 py-0.5 text-[11px] text-primario-oscuro"><UserRound size={11} /> {t.especialidad}</span>

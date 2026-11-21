@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { ChevronDown, Eye, EyeOff, GraduationCap, KeyRound, Lock, Mail, RefreshCw, User, UserPlus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Camera, ChevronDown, Eye, EyeOff, GraduationCap, KeyRound, Lock, Mail, RefreshCw, User, UserPlus } from 'lucide-react';
 import { catalogos, usuarios, type DatosUsuario } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { Alerta, Boton, Campo, Modal, claseInput } from '../../components/ui';
 import { useToast } from '../../components/Toast';
+import { EXT_FOTO, Iniciales, refrescarFotos, validarFoto } from '../../components/Layout';
 import type { UsuarioAdmin } from '../../types';
 
 type Rol = 'Estudiante' | 'Tutor';
@@ -49,6 +50,16 @@ export function ModalUsuario({ usuario: u, onCerrar, onListo }: { usuario: Usuar
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);
   const set = (k: keyof typeof f, v: unknown) => setF((x) => ({ ...x, [k]: v }));
+  // Foto de perfil (opcional): se sube después de guardar el usuario
+  const [foto, setFoto] = useState<File | null>(null);
+  const [vistaFoto, setVistaFoto] = useState<string | undefined>();
+  const [errorFoto, setErrorFoto] = useState('');
+  useEffect(() => {
+    if (!foto) return setVistaFoto(undefined);
+    const url = URL.createObjectURL(foto);
+    setVistaFoto(url);
+    return () => URL.revokeObjectURL(url);
+  }, [foto]);
 
   // Facultad del estudiante: se deduce de su carrera al editar
   const facultadEstudiante = f.id_facultad || cat.datos?.carreras.find((c) => c.id_carrera === carreraInicial)?.id_facultad || 0;
@@ -101,8 +112,15 @@ export function ModalUsuario({ usuario: u, onCerrar, onListo }: { usuario: Usuar
     setEnviando(true);
     setError('');
     try {
-      if (u) await usuarios.editar(u.id_usuario, datos);
-      else await usuarios.crear(datos);
+      const guardado = u ? await usuarios.editar(u.id_usuario, datos) : await usuarios.crear(datos);
+      if (foto) {
+        try {
+          await usuarios.subirFoto(guardado.id_usuario, foto);
+          refrescarFotos();
+        } catch (e) {
+          avisar(`El usuario se guardó, pero no se pudo subir la foto: ${mensajeError(e)}`, 'error');
+        }
+      }
       avisar(u ? 'Usuario actualizado.' : `${rol} registrado correctamente.`);
       onListo();
     } catch (err) {
@@ -149,6 +167,25 @@ export function ModalUsuario({ usuario: u, onCerrar, onListo }: { usuario: Usuar
           <hr className="mt-5 border-borde" />
         </>
       )}
+
+      {/* Foto de perfil (opcional) */}
+      <div className="mb-2 flex items-center gap-4">
+        <Iniciales id={u?.id_usuario} src={vistaFoto} nombre={f.nombre_completo || 'Nuevo Usuario'} className="size-16 text-xl" />
+        <div>
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-borde bg-white px-3 py-1.5 text-xs font-medium text-primario-oscuro hover:bg-fondo">
+            <Camera size={14} /> {foto || u ? 'Cambiar foto' : 'Subir foto'}
+            <input type="file" accept={EXT_FOTO} className="hidden" onChange={(e) => {
+              const a = e.target.files?.[0];
+              e.target.value = '';
+              if (!a) return;
+              const err = validarFoto(a);
+              setErrorFoto(err);
+              if (!err) setFoto(a);
+            }} />
+          </label>
+          <p className={`mt-1 text-[11px] ${errorFoto ? 'text-peligro' : 'text-texto-suave'}`}>{errorFoto || 'Opcional. PNG, JPG o WEBP, máx. 2 MB'}</p>
+        </div>
+      </div>
 
       {seccion(<User size={16} />, 'Información Personal')}
       <div className="grid gap-4 sm:grid-cols-2">

@@ -71,6 +71,7 @@ CREATE TABLE usuario (
   intentos_fallidos       SMALLINT     NOT NULL DEFAULT 0 CHECK (intentos_fallidos >= 0),
   bloqueado_hasta         TIMESTAMP    NULL,                   -- bloqueo temporal por intentos fallidos
   ultimo_acceso           TIMESTAMP    NULL,
+  foto                    VARCHAR(255) NULL,                   -- archivo de la foto de perfil (backend/uploads/fotos)
   fecha_registro          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

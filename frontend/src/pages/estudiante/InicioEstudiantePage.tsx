@@ -72,7 +72,7 @@ export function InicioEstudiantePage() {
                 </div>
                 <p className="mt-1 text-lg font-bold text-primario-oscuro">{t.asignatura.nombre}</p>
                 <div className="mt-5 flex items-center gap-3">
-                  <Iniciales nombre={t.tutor.nombre_completo} className="size-9 text-xs" />
+                  <Iniciales id={t.tutor.id_usuario} nombre={t.tutor.nombre_completo} className="size-9 text-xs" />
                   <div>
                     <p className="text-sm font-medium">{nombreTutor(t.tutor)}</p>
                     <p className="text-xs text-texto-suave">Tutor Asignado</p>

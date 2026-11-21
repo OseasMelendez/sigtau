@@ -80,7 +80,7 @@ export function MisTutoriasPage() {
                   <div key={t.id_tutoria} onClick={() => setIdSel(t.id_tutoria)}
                     className={`cursor-pointer rounded-xl border bg-fondo-tutor p-4 transition-colors ${activa ? 'border-2 border-primario-oscuro' : 'border-borde hover:bg-campo/50'}`}>
                     <div className="flex items-start gap-3">
-                      <Iniciales nombre={t.estudiante.nombre_completo} className="size-9 text-xs" />
+                      <Iniciales id={t.estudiante.id_usuario} nombre={t.estudiante.nombre_completo} className="size-9 text-xs" />
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium">{t.estudiante.nombre_completo}</p>
                         <p className="text-xs text-texto-suave">{t.asignatura.nombre}</p>

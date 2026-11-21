@@ -81,7 +81,7 @@ export function HistorialPage() {
                   </div>
                   <p className="mt-2 text-[15px] font-medium">{t.asignatura.nombre}</p>
                   <p className="mt-1.5 flex items-center gap-2 text-[11px] text-texto-suave">
-                    <Iniciales nombre={t.tutor.nombre_completo} className="size-5 text-[8px]" /> {nombreTutor(t.tutor)}
+                    <Iniciales id={t.tutor.id_usuario} nombre={t.tutor.nombre_completo} className="size-5 text-[8px]" /> {nombreTutor(t.tutor)}
                   </p>
                 </button>
               ))}
@@ -116,7 +116,7 @@ export function HistorialPage() {
                   <div className="rounded-lg border border-borde p-3.5">
                     <p className="mb-3 text-[10px] tracking-wide text-texto-suave uppercase">Tutor asignado</p>
                     <div className="flex items-center gap-3">
-                      <Iniciales nombre={sel.tutor.nombre_completo} className="size-10 text-sm" />
+                      <Iniciales id={sel.tutor.id_usuario} nombre={sel.tutor.nombre_completo} className="size-10 text-sm" />
                       <div>
                         <p className="text-sm font-semibold">{nombreTutor(sel.tutor)}</p>
                         {/* Figma: "Dpto. Matemáticas Aplicadas" */}

@@ -128,6 +128,15 @@ export const usuarios = {
   editar: (id: number, d: DatosUsuario) => api.put<UsuarioAdmin>(`/usuarios/${id}`, d),
   /** PATCH /usuarios/:id/activo { activo } (RF-12: desactivar, nunca eliminar) */
   cambiarActivo: (id: number, activo: boolean) => api.patch<void>(`/usuarios/${id}/activo`, { activo }),
+  /** Coordinador. POST /usuarios/:id/foto (multipart "archivo") */
+  subirFoto: (id: number, archivo: File) => api.subir<void>(`/usuarios/${id}/foto`, archivo),
+  /** Cualquier rol. URL de la foto de perfil (404 si no tiene) */
+  urlFoto: (id: number, version: number) => `/api/usuarios/${id}/foto?v=${version}`,
+};
+
+/** Cualquier rol: cambiar la foto propia. POST /perfil/foto */
+export const perfil = {
+  subirFoto: (archivo: File) => api.subir<void>('/perfil/foto', archivo),
 };
 
 // ---------- M7 Reportes (coordinador) ----------

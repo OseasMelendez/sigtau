@@ -91,7 +91,7 @@ export function DetalleTutoriaPage() {
       <div className="grid items-start gap-5 lg:grid-cols-[1fr_17rem]">
         <div className="flex flex-col gap-5">
           <Tarjeta className="flex items-center gap-4 !p-5">
-            <Iniciales nombre={persona.nombre_completo} className="size-16 text-xl" />
+            <Iniciales id={persona.id_usuario} nombre={persona.nombre_completo} className="size-16 text-xl" />
             <div className="min-w-0">
               <p className="text-[10px] text-texto-suave">{esEstudiante ? 'Tutor' : 'Estudiante'}</p>
               <p className="text-lg font-medium">{esEstudiante ? nombreTutor(t.tutor) : persona.nombre_completo}</p>

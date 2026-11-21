@@ -53,7 +53,7 @@ export function SolicitudesPendientesPage() {
           {lista.map((s) => (
             <Tarjeta key={s.id_solicitud} className="flex flex-col !rounded-xl !p-4">
               <div className="flex items-center gap-3 border-b border-borde pb-3">
-                <Iniciales nombre={s.estudiante.nombre_completo} className="size-10 text-sm" />
+                <Iniciales id={s.estudiante.id_usuario} nombre={s.estudiante.nombre_completo} className="size-10 text-sm" />
                 <div className="min-w-0">
                   <p className="font-medium">{s.estudiante.nombre_completo}</p>
                   <p className="flex items-center gap-1 text-[11px] text-texto-suave">
@@ -125,7 +125,7 @@ export function ModalAprobar({ solicitud: s, onCerrar, onListo }: { solicitud: S
       {/* Figma 276:4 */}
       <div className="rounded-xl border border-primario/30 bg-fondo-tutor p-3.5">
         <div className="flex items-center gap-3">
-          <Iniciales nombre={s.estudiante.nombre_completo} className="size-10 text-sm" />
+          <Iniciales id={s.estudiante.id_usuario} nombre={s.estudiante.nombre_completo} className="size-10 text-sm" />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-sm font-semibold">{s.estudiante.nombre_completo}</p>

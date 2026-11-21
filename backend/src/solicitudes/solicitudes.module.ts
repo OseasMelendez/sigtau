@@ -99,11 +99,17 @@ export class SolicitudesService {
   }
 
   /** Guarda el documento de una solicitud propia y Pendiente (se sube justo después de crearla). */
-  async subirDocumento(idEstudiante: number, idSolicitud: number, a?: ArchivoSubido) {
+  async subirDocumento(
+    idEstudiante: number,
+    idSolicitud: number,
+    a?: ArchivoSubido,
+  ) {
     if (!a) throw new BadRequestException('Selecciona un archivo');
     const ext = extname(a.originalname).toLowerCase();
     if (!TIPOS_DOC[ext])
-      throw new BadRequestException('Solo se permiten archivos PDF, Word o imágenes (PNG, JPG)');
+      throw new BadRequestException(
+        'Solo se permiten archivos PDF, Word o imágenes (PNG, JPG)',
+      );
     if (a.size > MAX_DOC)
       throw new BadRequestException('El documento no puede superar 5 MB');
     const s = await this.prisma.solicitud_tutoria.findFirst({
@@ -111,7 +117,9 @@ export class SolicitudesService {
     });
     if (!s) throw new NotFoundException('La solicitud no existe.');
     if (s.estado !== 'Pendiente')
-      throw new BadRequestException('Solo se adjuntan documentos a solicitudes pendientes');
+      throw new BadRequestException(
+        'Solo se adjuntan documentos a solicitudes pendientes',
+      );
     mkdirSync(CARPETA_DOCS, { recursive: true });
     const nombre = `solicitud-${idSolicitud}${ext}`;
     writeFileSync(join(CARPETA_DOCS, nombre), a.buffer);
@@ -259,7 +267,9 @@ export class SolicitudesController {
   @Post(':id/documento')
   @Roles('Estudiante')
   @HttpCode(204)
-  @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: MAX_DOC + 1 } }))
+  @UseInterceptors(
+    FileInterceptor('archivo', { limits: { fileSize: MAX_DOC + 1 } }),
+  )
   subirDocumento(
     @Usuario() u: UsuarioActual,
     @Param('id') i: string,

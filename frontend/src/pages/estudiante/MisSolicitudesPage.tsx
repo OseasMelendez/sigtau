@@ -76,7 +76,7 @@ function TarjetaSolicitud({ s, onResponder }: { s: SolicitudEstudiante; onRespon
       )}
 
       <div className="flex items-center gap-2.5 rounded-lg bg-fondo-tutor px-2.5 py-2">
-        <Iniciales nombre={s.tutor.nombre_completo} className="size-8 text-[11px]" />
+        <Iniciales id={s.tutor.id_usuario} nombre={s.tutor.nombre_completo} className="size-8 text-[11px]" />
         <div>
           <p className="text-[10px] text-texto-suave">{s.estado === 'Aprobada' ? 'Tutor' : 'Tutor solicitado'}</p>
           <p className="text-xs font-semibold">{nombreTutor(s.tutor)}</p>

@@ -12,7 +12,19 @@ import {
   Post,
   Put,
   Query,
+  StreamableFile,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  createReadStream,
+  existsSync,
+  mkdirSync,
+  unlinkSync,
+  writeFileSync,
+} from 'fs';
+import { extname, join, resolve } from 'path';
 import { Type, Transform } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -61,7 +73,9 @@ class DatosTutorDto {
   @IsOptional()
   @Transform(recortar)
   @IsString()
-  @MaxLength(100, { message: 'El departamento no puede superar 100 caracteres' })
+  @MaxLength(100, {
+    message: 'El departamento no puede superar 100 caracteres',
+  })
   departamento?: string | null;
   @Transform(recortar)
   @IsString()
@@ -369,5 +383,96 @@ export class UsuariosController {
   }
 }
 
-@Module({ controllers: [UsuariosController], providers: [UsuariosService] })
+// ---------- Foto de perfil (Figma: avatares con foto; sin foto se muestran las iniciales) ----------
+const CARPETA_FOTOS = resolve(process.cwd(), 'uploads', 'fotos');
+const MAX_FOTO = 2 * 1024 * 1024;
+const TIPOS_FOTO: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+};
+interface FotoSubida {
+  originalname: string;
+  size: number;
+  buffer: Buffer;
+}
+
+@Injectable()
+export class FotosService {
+  constructor(private prisma: PrismaService) {}
+
+  async guardar(idUsuario: number, a?: FotoSubida) {
+    if (!a) throw new BadRequestException('Selecciona una imagen');
+    const ext = extname(a.originalname).toLowerCase();
+    if (!TIPOS_FOTO[ext])
+      throw new BadRequestException(
+        'La foto debe ser una imagen PNG, JPG o WEBP',
+      );
+    if (a.size > MAX_FOTO)
+      throw new BadRequestException('La foto no puede superar 2 MB');
+    const u = await this.prisma.usuario.findUnique({
+      where: { id_usuario: idUsuario },
+    });
+    if (!u) throw new NotFoundException('El usuario no existe.');
+    mkdirSync(CARPETA_FOTOS, { recursive: true });
+    // Si cambia la extensión, se borra la foto anterior
+    if (u.foto && u.foto !== `usuario-${idUsuario}${ext}`) {
+      const vieja = join(CARPETA_FOTOS, u.foto);
+      if (existsSync(vieja)) unlinkSync(vieja);
+    }
+    const nombre = `usuario-${idUsuario}${ext}`;
+    writeFileSync(join(CARPETA_FOTOS, nombre), a.buffer);
+    await this.prisma.usuario.update({
+      where: { id_usuario: idUsuario },
+      data: { foto: nombre },
+    });
+  }
+
+  async leer(idUsuario: number) {
+    const u = await this.prisma.usuario.findUnique({
+      where: { id_usuario: idUsuario },
+      select: { foto: true },
+    });
+    const ruta = u?.foto ? join(CARPETA_FOTOS, u.foto) : '';
+    if (!ruta || !existsSync(ruta))
+      throw new NotFoundException('El usuario no tiene foto.');
+    return new StreamableFile(createReadStream(ruta), {
+      type:
+        TIPOS_FOTO[extname(ruta).toLowerCase()] ?? 'application/octet-stream',
+    });
+  }
+}
+
+const interceptorFoto = FileInterceptor('archivo', {
+  limits: { fileSize: MAX_FOTO + 1 },
+});
+
+/** Cualquier usuario con sesión ve las fotos y cambia la suya; el coordinador cambia la de cualquiera. */
+@Controller()
+export class FotosController {
+  constructor(private s: FotosService) {}
+
+  @Get('usuarios/:id/foto') ver(@Param('id') i: string) {
+    return this.s.leer(id(i));
+  }
+  @Post('perfil/foto')
+  @HttpCode(204)
+  @UseInterceptors(interceptorFoto)
+  propia(@Usuario() u: UsuarioActual, @UploadedFile() a?: FotoSubida) {
+    return this.s.guardar(u.id_usuario, a);
+  }
+  @Post('usuarios/:id/foto')
+  @Roles('Coordinador')
+  @HttpCode(204)
+  @UseInterceptors(interceptorFoto)
+  deOtro(@Param('id') i: string, @UploadedFile() a?: FotoSubida) {
+    return this.s.guardar(id(i), a);
+  }
+}
+
+@Module({
+  controllers: [UsuariosController, FotosController],
+  providers: [UsuariosService, FotosService],
+})
 export class UsuariosModule {}

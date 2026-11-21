@@ -213,7 +213,7 @@ export function NuevaSolicitudPage() {
 function TarjetaTutor({ tutor, seleccionado, enlace }: { tutor: TutorResumen; seleccionado: boolean; enlace: string }) {
   return (
     <div className={`flex flex-col items-center rounded-xl border bg-white px-3 pt-4 pb-3 text-center ${seleccionado ? 'border-primario ring-2 ring-primario/30' : 'border-borde'}`}>
-      <Iniciales nombre={tutor.nombre_completo} className="size-12 text-base" />
+      <Iniciales id={tutor.id_usuario} nombre={tutor.nombre_completo} className="size-12 text-base" />
       <p className="mt-3 font-semibold">{nombreTutor(tutor)}</p>
       <span className={`mt-1 rounded-full px-2 py-0.5 text-[11px] ${colorEspecialidad(tutor.especialidad)}`}>{tutor.especialidad}</span>
       <div className="mt-5 flex gap-1">

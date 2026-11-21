@@ -49,6 +49,7 @@ model usuario {
   bloqueado_hasta         DateTime?      @db.Timestamp(6)
   ultimo_acceso           DateTime?      @db.Timestamp(6)
   fecha_registro          DateTime       @default(now()) @db.Timestamp(6)
+  foto                    String?        @db.VarChar(255)
   estudiante              estudiante?
   notificacion            notificacion[]
   reporte                 reporte[]
