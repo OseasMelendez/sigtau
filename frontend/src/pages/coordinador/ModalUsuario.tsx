@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Camera, ChevronDown, Eye, EyeOff, GraduationCap, KeyRound, Lock, Mail, RefreshCw, User, UserPlus } from 'lucide-react';
+import { Camera, Eye, EyeOff, GraduationCap, KeyRound, Lock, Mail, RefreshCw, User, UserPlus } from 'lucide-react';
 import { catalogos, usuarios, type DatosUsuario } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { Alerta, Boton, Campo, Modal, claseInput } from '../../components/ui';
+import { Selector } from '../../components/Selector';
 import { useToast } from '../../components/Toast';
 import { EXT_FOTO, Iniciales, refrescarFotos, validarFoto } from '../../components/Layout';
 import type { UsuarioAdmin } from '../../types';
@@ -136,8 +137,7 @@ export function ModalUsuario({ usuario: u, onCerrar, onListo }: { usuario: Usuar
   );
   const selector = (id: string, valor: string | number, onChange: (v: string) => void, opciones: React.ReactNode, invalido?: boolean) => (
     <div className="relative">
-      <select id={id} className={`${claseInput} appearance-none bg-fondo pr-9`} value={valor} aria-invalid={invalido} onChange={(e) => onChange(e.target.value)}>{opciones}</select>
-      <ChevronDown size={16} className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-texto-suave" />
+      <Selector id={id} className={`${claseInput} bg-fondo`} value={valor} invalido={invalido} onChange={(v) => onChange(v)}>{opciones}</Selector>
     </div>
   );
   const seccion = (icono: React.ReactNode, titulo: string) => (

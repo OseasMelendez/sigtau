@@ -5,6 +5,7 @@ import { usuarios } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { fechaHora } from '../../lib/fechas';
 import { Alerta, Boton, Cargando, Encabezado, Vacio, claseInput } from '../../components/ui';
+import { Selector } from '../../components/Selector';
 import { Iniciales } from '../../components/Layout';
 import { useToast } from '../../components/Toast';
 import { ModalUsuario } from './ModalUsuario';
@@ -54,7 +55,7 @@ export function UsuariosPage() {
   const lista = datos ?? [];
   const paginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
   const visibles = lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
-  const select = `${claseInput} !w-auto !py-2`;
+  const select = `${claseInput} !w-auto min-w-44 !py-2`;
 
   return (
     <div className="max-w-6xl">
@@ -69,12 +70,12 @@ export function UsuariosPage() {
       </Encabezado>
 
       <div className="mb-4 flex gap-3">
-        <select className={select} value={rol} onChange={(e) => { setRol(e.target.value as RolUsuario | ''); setPagina(1); }} aria-label="Rol">
+        <Selector className={select} value={rol} onChange={(v) => { setRol(v as RolUsuario | ''); setPagina(1); }} aria-label="Rol">
           <option value="">Todos los roles</option><option>Estudiante</option><option>Tutor</option><option>Coordinador</option>
-        </select>
-        <select className={select} value={activo} onChange={(e) => { setActivo(e.target.value as '' | 'true' | 'false'); setPagina(1); }} aria-label="Estado">
+        </Selector>
+        <Selector className={select} value={activo} onChange={(v) => { setActivo(v as '' | 'true' | 'false'); setPagina(1); }} aria-label="Estado">
           <option value="">Todos los estados</option><option value="true">Activos</option><option value="false">Inactivos</option>
-        </select>
+        </Selector>
       </div>
 
       {error && <div className="mb-4"><Alerta>{error}</Alerta></div>}

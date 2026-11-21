@@ -5,6 +5,7 @@ import { useCarga } from '../../lib/hooks';
 import { nombreTutor } from '../../lib/nombres';
 import { diaMes, duracion, fechaConDia } from '../../lib/fechas';
 import { Alerta, Badge, Boton, Cargando, Encabezado, Vacio, claseInput } from '../../components/ui';
+import { Selector } from '../../components/Selector';
 import { Iniciales } from '../../components/Layout';
 import type { EstadoTutoria } from '../../types';
 
@@ -32,7 +33,7 @@ export function HistorialPage() {
   const asignaturas = [...new Map(datos.map((t) => [t.asignatura.id_asignatura, t.asignatura])).values()];
   const sel = lista.find((t) => t.id_tutoria === idSel) ?? lista[0];
   const filtros = estado || asignatura || desde || hasta;
-  const select = `${claseInput} !w-auto !py-1.5 !text-xs`;
+  const select = `${claseInput} !w-auto min-w-40 !py-1.5 !text-xs`;
   /** '2026-06-15' -> '15 jun, 2026' */
   const fechaLista = (f: string) => `${diaMes(`${f}T00:00:00Z`)}, ${f.slice(0, 4)}`;
   const claseFecha = 'bg-transparent px-2 py-1.5 text-xs outline-none';
@@ -42,14 +43,14 @@ export function HistorialPage() {
       <Encabezado titulo="Historial de Tutorías" subtitulo="Revisa el registro y detalle de tus sesiones." />
 
       <div className="mb-5 flex flex-wrap items-center gap-3 print:hidden">
-        <select className={select} value={estado} onChange={(e) => setEstado(e.target.value as EstadoTutoria | '')} aria-label="Estado">
+        <Selector className={select} value={estado} onChange={(v) => setEstado(v as EstadoTutoria | '')} aria-label="Estado">
           <option value="">Todos los estados</option>
           <option>Programada</option><option>Realizada</option><option>Cancelada</option>
-        </select>
-        <select className={select} value={asignatura} onChange={(e) => setAsignatura(e.target.value)} aria-label="Asignatura">
+        </Selector>
+        <Selector className={select} value={asignatura} onChange={(v) => setAsignatura(v)} aria-label="Asignatura">
           <option value="">Todas las asignaturas</option>
           {asignaturas.map((a) => <option key={a.id_asignatura} value={a.id_asignatura}>{a.nombre}</option>)}
-        </select>
+        </Selector>
         {/* Rango de fechas en una sola caja, como en el Figma */}
         <div className="flex items-center gap-1 rounded-lg border border-borde bg-white px-1 focus-within:border-primario focus-within:ring-2 focus-within:ring-primario/20">
           <input type="date" className={claseFecha} value={desde} onChange={(e) => setDesde(e.target.value)} aria-label="Desde" />

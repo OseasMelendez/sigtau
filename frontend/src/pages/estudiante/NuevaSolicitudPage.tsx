@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CalendarCheck, ChevronDown, FileText, UploadCloud, X } from 'lucide-react';
+import { CalendarCheck, FileText, UploadCloud, X } from 'lucide-react';
 import { catalogos, solicitudes, tutores } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { nombreTutor } from '../../lib/nombres';
 import { textoFranja } from '../../lib/fechas';
 import { Alerta, Boton, Campo, Cargando, Encabezado, Tarjeta, Vacio, claseInput } from '../../components/ui';
+import { Selector } from '../../components/Selector';
 import { Iniciales } from '../../components/Layout';
 import { useToast } from '../../components/Toast';
 import type { Franja, TutorResumen } from '../../types';
@@ -131,13 +132,12 @@ export function NuevaSolicitudPage() {
         <Tarjeta className="flex flex-col gap-7 border-transparent !p-7 shadow-md shadow-primario/5">
           <Campo etiqueta="Asignatura" htmlFor="asignatura" error={errores.asignatura}>
             <div className="relative w-full max-w-xs">
-              <select id="asignatura" className={`${claseRelleno} cursor-pointer appearance-none pr-9`} value={idAsignatura || ''}
-                aria-invalid={!!errores.asignatura}
-                onChange={(e) => setParams(e.target.value ? { asignatura: e.target.value } : {})}>
+              <Selector id="asignatura" className={claseRelleno} value={idAsignatura || ''}
+                invalido={!!errores.asignatura}
+                onChange={(v) => setParams(v ? { asignatura: v } : {})}>
                 <option value="">Selecciona una asignatura</option>
                 {asigs.datos?.map((a) => <option key={a.id_asignatura} value={a.id_asignatura}>{a.nombre}</option>)}
-              </select>
-              <ChevronDown size={16} className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-texto-suave" />
+              </Selector>
             </div>
           </Campo>
 

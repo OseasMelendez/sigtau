@@ -4,6 +4,7 @@ import { catalogos, reportes, usuarios } from '../../services';
 import { mensajeError, useCarga } from '../../lib/hooks';
 import { fechaCorta, hoyISO } from '../../lib/fechas';
 import { Alerta, Boton, Encabezado, Tarjeta, claseInput } from '../../components/ui';
+import { Selector } from '../../components/Selector';
 import { Iniciales } from '../../components/Layout';
 import { useToast } from '../../components/Toast';
 import {
@@ -105,11 +106,11 @@ export function GenerarReportePage() {
     catch (e) { avisar(mensajeError(e), 'error'); } finally { setDescargando(null); }
   };
 
-  const sel = `${claseInput} !py-2 appearance-none pr-8`;
+  const sel = `${claseInput} !py-2`;
   const filtro = (etiqueta: string, control: React.ReactNode) => (
     <label className="flex min-w-0 flex-col gap-1">
       <span className="text-xs text-texto-suave">{etiqueta}</span>
-      <div className="relative">{control}<ChevronDown size={15} className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-texto-suave" /></div>
+      <div className="relative">{control}</div>
     </label>
   );
 
@@ -120,9 +121,9 @@ export function GenerarReportePage() {
       <div className="mb-3 grid gap-3 md:grid-cols-[1.4fr_auto_1fr_1fr_1fr]">
         {/* El tipo va primero porque define qué filtros aplican */}
         {filtro('Tipo de reporte', (
-          <select className={sel} value={tipo} onChange={(e) => setTipo(e.target.value as TipoReporte)}>
+          <Selector className={sel} value={tipo} onChange={(v) => setTipo(v as TipoReporte)}>
             {TIPOS_REPORTE.map((t) => <option key={t}>{t}</option>)}
-          </select>
+          </Selector>
         ))}
         <div className="flex flex-col gap-1">
           <span className="text-xs text-texto-suave">Período</span>
@@ -132,23 +133,23 @@ export function GenerarReportePage() {
           </div>
         </div>
         {filtro('Tutor', (
-          <select className={sel} value={idTutor ?? ''} onChange={(e) => setIdTutor(e.target.value ? Number(e.target.value) : undefined)}>
+          <Selector className={sel} value={idTutor ?? ''} onChange={(v) => setIdTutor(v ? Number(v) : undefined)}>
             <option value="">Todos los tutores</option>
             {tuts.datos?.map((t) => <option key={t.id_usuario} value={t.id_usuario}>{t.nombre_completo}</option>)}
-          </select>
+          </Selector>
         ))}
         {filtro('Asignatura', (
-          <select className={sel} value={idAsignatura ?? ''} onChange={(e) => setIdAsignatura(e.target.value ? Number(e.target.value) : undefined)}>
+          <Selector className={sel} value={idAsignatura ?? ''} onChange={(v) => setIdAsignatura(v ? Number(v) : undefined)}>
             <option value="">Todas las asignaturas</option>
             {asigs.datos?.map((a) => <option key={a.id_asignatura} value={a.id_asignatura}>{a.nombre}</option>)}
-          </select>
+          </Selector>
         ))}
         {filtro('Estado de la tutoría', info.usaEstado ? (
-          <select className={sel} value={estado ?? ''} onChange={(e) => setEstado((e.target.value || undefined) as EstadoTutoria | undefined)}>
+          <Selector className={sel} value={estado ?? ''} onChange={(v) => setEstado((v || undefined) as EstadoTutoria | undefined)}>
             <option value="">Todos</option><option value="Programada">Programadas</option><option value="Realizada">Realizadas</option><option value="Cancelada">Canceladas</option>
-          </select>
+          </Selector>
         ) : (
-          <select className={sel} disabled title="Este tipo de reporte no se filtra por estado"><option>No aplica</option></select>
+          <Selector className={sel} value="No aplica" disabled title="Este tipo de reporte no se filtra por estado"><option>No aplica</option></Selector>
         ))}
       </div>
       <p className="mb-5 flex items-start gap-1.5 text-xs text-texto-suave">
