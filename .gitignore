@@ -6,3 +6,5 @@ dist/
 coverage/
 # Documentos subidos por los usuarios
 backend/uploads/
+# Notas de contexto para Claude Code (solo local)
+CLAUDE.md
